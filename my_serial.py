@@ -20,25 +20,29 @@ def print_data(data, from_me):
 
 
 def send_data_package(data):
-    data = package_head + [len(data)] + data + package_tail
-    print_data(data, True)
-    my_serial.write(bytes(data))
+    if my_serial is not None and my_serial.isOpen():
+        data = package_head + [len(data)] + data + package_tail
+        print_data(data, True)
+        my_serial.write(bytes(data))
 
 def recv_data_package():
-    if (my_serial.read(2) != bytes(package_head)):
-        return None
-    result = list(my_serial.read(int.from_bytes(my_serial.read())))
-    if (my_serial.read(2) != bytes(package_tail)):
-        return None
-    print_data(result, False)
-    return result
+    if my_serial is not None and my_serial.isOpen():
+        if (my_serial.read(2) != bytes(package_head)):
+            return None
+        result = list(my_serial.read(int.from_bytes(my_serial.read())))
+        if (my_serial.read(2) != bytes(package_tail)):
+            return None
+        print_data(result, False)
+        return result
 
 
 def send_write_order(data):
-    send_data_queue.append(('w', data))
+    if my_serial is not None and my_serial.isOpen():
+        send_data_queue.append(('w', data))
 
 def send_read_order(data, recv_func):
-    send_data_queue.append(('r', data, recv_func))
+    if my_serial is not None and my_serial.isOpen():
+        send_data_queue.append(('r', data, recv_func))
 
 
 running = True
@@ -84,7 +88,6 @@ def open_serial(com):
         t.start()
     else:
         print("打开串口失败")
-open_serial('COM6')
 
 def close_serial():
     global running
