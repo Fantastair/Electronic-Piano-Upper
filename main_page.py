@@ -14,7 +14,7 @@ down_board_pos_kf = fantas.RectKeyFrame(down_board, 'top', u.HEIGHT // 2, 20, u.
 fantas.Label((u.WIDTH, 4), bg=DEEPBLUE, topleft=(0, 0)).join(down_board)
 
 for i in range(8):
-    piano.PianoKey(midtop=(113 + 82 * i, -4)).join(down_board)
+    piano.PianoKey(i, midtop=(113 + 82 * i, -4)).join(down_board)
 
 up_board = fantas.Label((u.WIDTH, u.HEIGHT // 2), bg=LIGHTBLUE, bottomleft=(0, 0))
 up_board_pos_kf = fantas.RectKeyFrame(up_board, 'bottom', u.HEIGHT // 2, 20, u.harmonic_curve)

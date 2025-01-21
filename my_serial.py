@@ -61,27 +61,30 @@ def serial_thread():
     global connected
 
     while not connected:
-        time.sleep(5)
+        # '''
+        time.sleep(1)
         connected = True
-        # for i in iter_port():
-        #     print(f'尝试连接 {i}', end=' ---- ')
-        #     if open_serial(i):
-        #         print('尝试握手', end=' ---- ')
-        #         flag = True
-        #         if not send_data_package([0x02, 0x00]):
-        #             flag = False
-        #         else:
-        #             recv = recv_data_package()
-        #             if recv is None or len(recv) != 1 or recv[0] != 0x66:
-        #                 flag = False
-        #         if flag:
-        #             print('握手成功，成功连接到下位机')
-        #             connected = True
-        #             break
-        #         else:
-        #             print('握手失败，此连接不是下位机')
-        #     else:
-        #         print('连接失败')
+        '''
+        for i in iter_port():
+            print(f'尝试连接 {i}', end=' ---- ')
+            if open_serial(i):
+                print('尝试握手', end=' ---- ')
+                flag = True
+                if not send_data_package([0x02, 0x00]):
+                    flag = False
+                else:
+                    recv = recv_data_package()
+                    if recv is None or len(recv) != 1 or recv[0] != 0x66:
+                        flag = False
+                if flag:
+                    print('握手成功，成功连接到下位机')
+                    connected = True
+                    break
+                else:
+                    print('握手失败，此连接不是下位机')
+            else:
+                print('连接失败')
+        # '''
 
     while running:
         if send_data_queue:

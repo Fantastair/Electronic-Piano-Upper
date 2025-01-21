@@ -41,6 +41,7 @@ load_method = {
     '.mp3': _sound,
     '.ogg': _sound,
     '.wav': _sound,
+    '.aac': _sound,
     '.color': _color,
 }
 def load_resource(path):
@@ -78,50 +79,3 @@ def merge_res_group(path_group):
     # 将多个资源文件分组后整合为一个
     # path_group 里面用列表存放每个组的<Path>路径
     return tuple((merge_res(i) for i in path_group))
-
-'''
-dump(merge_res_group((
-    [
-    Path('../res/font/douyu.otf'),
-    Path('../res/font/deltha.ttf'),
-    Path('../res/font/iconfont.ttf'),
-    Path('../res/font/shuhei.ttf'),
-    ],
-    [
-    Path('../res/image/icon.png'),
-    ],
-    [
-    Path('../res/music/background.mp3'),
-    Path('../res/music/difficult.mp3'),
-    Path('../res/music/easy.mp3'),
-    Path('../res/music/medium.mp3'),
-    ],
-    [
-    Path('../res/sound/beat.ogg'),
-    Path('../res/sound/click.ogg'),
-    Path('../res/sound/error.ogg'),
-    Path('../res/sound/lost.ogg'),
-    Path('../res/sound/new_record.ogg'),
-    Path('../res/sound/open_map.ogg'),
-    Path('../res/sound/pull_page.ogg'),
-    Path('../res/sound/reveal.ogg'),
-    Path('../res/sound/score.ogg'),
-    Path('../res/sound/set_flag.ogg'),
-    Path('../res/sound/winned.ogg'),
-    ],
-    [
-    Path('../res/color.color')
-    ]
-    )), '../resource')
-'''
-# d = {}
-# file = Path('../res/color')
-# with file.open() as f:
-#     for color in f.readlines():
-#         name, value = color.strip().split()
-#         d[name] = pygame.Color(value)
-
-# d = load('../color')
-# with open('../res/color.color', 'wb') as f:
-#     pickle.dump(d, f)
-# '''

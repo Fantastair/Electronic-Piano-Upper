@@ -13,6 +13,7 @@ class UiManager:
     # 兼具变量共享池的作用
     images: dict
     fonts: dict
+    sounds: dict
 
     def __init__(self):
         self.fps = 60

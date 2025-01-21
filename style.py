@@ -13,8 +13,11 @@ LIGHTBROWN = get_color('e6c28e')
 LIGHTBLUE = get_color('a8cceb')
 LIGHTRED = get_color('d6707c')
 
+color_offset = get_color('32323200')
+
 stm32_text_style = get_text(48, DEEPBLUE)
 init_info_style = get_text(48, DEEPBLUE)
 tip_text_style = get_text(36, LIGHTRED)
+piano_num_text_style = get_text(36, DEEPBLUE)
 
 del pygame, get_color, get_text
