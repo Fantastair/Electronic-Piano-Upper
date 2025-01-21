@@ -51,7 +51,8 @@ class NodeBase:
 
     def leave(self):
         # 从父节点中移除
-        self.father.remove(self)
+        if not self.is_root():
+            self.father.remove(self)
 
     def move_to(self, n):
         # 移至位置n
