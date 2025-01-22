@@ -3,6 +3,7 @@ import fantas
 from fantas import uimanager as u
 from style import *
 
+import random
 import numpy as np
 from scipy import signal
 
@@ -19,6 +20,7 @@ class PianoKeyMouseWidget(fantas.MouseBase):
     def mousepress(self, pos, button):
         if button == 1 and self.mouseon:
             self.ui.play()
+            Note(pygame.mouse.get_pos())
     
     def mouserelease(self, pos, button):
         if button == self.mousedown == 1:
@@ -28,6 +30,7 @@ class PianoKeyKeyBoardWidget(fantas.KeyboardBase):
     def keyboardpress(self, key, shortcut):
         if key == self.ui.key:
             self.ui.play()
+            Note((self.ui.rect.centerx + self.ui.father.rect.left, self.ui.rect.centery + self.ui.father.rect.top))
 
     def keyboardrelease(self, key, shortcut):
         if key == self.ui.key:
@@ -91,3 +94,36 @@ class PianoKey(fantas.Label):
                 self.high_point_pos_down_kf.stop()
             self.high_point_pos_up_kf.launch('continue')
         self.sound.fadeout(500)
+
+class Note(fantas.IconText):
+    color_family = (
+        pygame.Color('#845ec2'),
+        pygame.Color('#d65db1'),
+        pygame.Color('#ff6f91'),
+        pygame.Color('#ff9671'),
+        pygame.Color('#ffc75f'),
+        pygame.Color('#f9f871'),
+        pygame.Color('#2c73d2'),
+        pygame.Color('#008f7a'),
+        pygame.Color('#fbeaff'),
+        pygame.Color('#b39cd0'),
+        pygame.Color('#00c9a7'),
+        pygame.Color('#c34a36'),
+        pygame.Color('#4ffbdf'),
+    )
+
+    def __init__(self, pos_ref):
+        random_style = {
+            'fgcolor': random.choice(self.color_family),
+            'size': random.randint(-10, 10) + 36,
+            'rotation': random.randint(-20, 20),
+        }
+        random_center = (pos_ref[0] + random.randint(-20, 20), pos_ref[1] + random.randint(-20, 20))
+        super().__init__(chr(random.randint(0xe600, 0xe609)), u.fonts['iconfont'], random_style, center=random_center)
+        self.join(u.root)
+        random_frame = random.randint(15, 25)
+        random_alpha_kf = fantas.UiKeyFrame(self, 'alpha', 0, random_frame, u.curve)
+        random_alpha_kf.bind_endupwith(self.leave)
+        random_pos_kf = fantas.RectKeyFrame(self, 'centery', random_center[1] - random.randint(30, 60), random_frame, u.faster_curve)
+        random_alpha_kf.launch()
+        random_pos_kf.launch()

@@ -4,6 +4,11 @@ import serial.tools.list_ports_windows
 import threading
 lock = threading.RLock()
 
+from fantas import uimanager as u
+import pygame
+
+u.CONNECTEDEVENT = pygame.event.custom_type()
+
 def iter_port():
     return [i.name for i in serial.tools.list_ports_windows.iterate_comports()]
 
@@ -61,8 +66,8 @@ def serial_thread():
     global connected
 
     while not connected:
-        # '''
-        time.sleep(1)
+        '''
+        time.sleep(5)
         connected = True
         '''
         for i in iter_port():
@@ -86,6 +91,7 @@ def serial_thread():
                 print('连接失败')
         # '''
 
+    pygame.event.post(pygame.event.Event(u.CONNECTEDEVENT))
     while running:
         if send_data_queue:
             with lock:
@@ -116,10 +122,9 @@ def open_serial(com):
             bytesize=serial.EIGHTBITS,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
-            timeout=1,
-            write_timeout=1
+            timeout=0.5,
+            write_timeout=0.5
             )
-        my_serial.timeout = 1
     except serial.serialutil.SerialException:
         opened = False
 

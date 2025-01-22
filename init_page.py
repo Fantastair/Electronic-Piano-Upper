@@ -397,6 +397,14 @@ class STM32BoxMouseWidget(fantas.MouseBase):
         if wait_connet:
             ani12()
             self.mouseout()
+    
+    def handle(self, event):
+        super().handle(event)
+        if event.type == u.CONNECTEDEVENT:
+            tip_text1.text = '连接成功'
+            tip_text2.text = '点击继续'
+            tip_text1.update_img()
+            tip_text2.update_img()
 
 STM32BoxMouseWidget().apply_event()
 

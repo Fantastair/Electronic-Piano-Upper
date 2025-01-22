@@ -6,6 +6,7 @@ from pathlib import Path
 
 import fantas
 from fantas import uimanager as u
+
 import my_serial
 my_serial.start_connect()
 
