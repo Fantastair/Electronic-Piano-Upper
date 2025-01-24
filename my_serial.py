@@ -66,8 +66,8 @@ def serial_thread():
     global connected
 
     while not connected:
-        '''
-        time.sleep(5)
+        # '''
+        # time.sleep(6)
         connected = True
         '''
         for i in iter_port():

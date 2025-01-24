@@ -12,6 +12,8 @@ DEEPBLUE = get_color('4a466e')
 LIGHTBROWN = get_color('e6c28e')
 LIGHTBLUE = get_color('a8cceb')
 LIGHTRED = get_color('d6707c')
+DEEPGRAY = get_color('202020')
+GRAY = get_color('888888')
 
 color_offset = get_color('32323200')
 

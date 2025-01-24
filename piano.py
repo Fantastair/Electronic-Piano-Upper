@@ -80,7 +80,7 @@ class PianoKey(fantas.Label):
         self.size_long_kf.launch('continue')
         if self.num >= 7:
             self.high_point_pos_down_kf.launch('continue')
-        self.sound.play(loops=-1, fade_ms=50)
+        self.sound.play(loops=-1)
 
     def unplay(self):
         if self.num_text_pos_down_kf.is_launched():
