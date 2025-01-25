@@ -2,6 +2,7 @@ import pygame
 import fantas
 from fantas import uimanager as u
 from style import *
+import my_serial
 
 import random
 import numpy as np
@@ -12,11 +13,13 @@ class PianoKeyMouseWidget(fantas.MouseBase):
         super().__init__(ui, 2)
     
     def mousein(self):
-        self.ui.color_dark_kf.launch('continue')
+        self.ui.color_kf.value = FAKEWHITE - color_offset
+        self.ui.color_kf.launch('continue')
 
     def mouseout(self):
-        self.ui.color_light_kf.launch('continue')
-    
+        self.ui.color_kf.value = FAKEWHITE
+        self.ui.color_kf.launch('continue')
+
     def mousepress(self, pos, button):
         if button == 1 and self.mouseon:
             self.ui.play()
@@ -46,6 +49,7 @@ class PianoKey(fantas.Label):
         self.freq = self.freq_map[num]
         self.key = self.key_map[num]
         self.anchor = 'midtop'
+        self.played = False
 
         self.mousewidget = PianoKeyMouseWidget(self)
         self.mousewidget.apply_event()
@@ -65,8 +69,7 @@ class PianoKey(fantas.Label):
 
         self.size_long_kf = fantas.LabelKeyFrame(self, 'size', (self.rect.w, self.rect.h + 12), 10, u.harmonic_curve)
         self.size_short_kf = fantas.LabelKeyFrame(self, 'size', (self.rect.w, self.rect.h), 10, u.harmonic_curve)
-        self.color_dark_kf = fantas.LabelKeyFrame(self, 'bg', self.bg - color_offset, 10, u.curve)
-        self.color_light_kf = fantas.LabelKeyFrame(self, 'bg', self.bg, 10, u.curve)
+        self.color_kf = fantas.LabelKeyFrame(self, 'bg', self.bg - color_offset, 10, u.curve)
 
         sample_rate = 44100
         t = np.linspace(0, 1, int(sample_rate), False)
@@ -76,24 +79,30 @@ class PianoKey(fantas.Label):
         self.sound = pygame.sndarray.make_sound(sound_array)
 
     def play(self):
-        self.num_text_pos_down_kf.launch('continue')
-        self.size_long_kf.launch('continue')
-        if self.num >= 7:
-            self.high_point_pos_down_kf.launch('continue')
-        self.sound.play(loops=-1)
+        if not self.played:
+            self.num_text_pos_down_kf.launch('continue')
+            self.size_long_kf.launch('continue')
+            if self.num >= 7:
+                self.high_point_pos_down_kf.launch('continue')
+            self.sound.play(loops=-1)
+            my_serial.send_write_order([0x00, 0x00, self.num])
+            self.played = True
 
     def unplay(self):
-        if self.num_text_pos_down_kf.is_launched():
-            self.num_text_pos_down_kf.stop()
-        self.num_text_pos_up_kf.launch('continue')
-        if self.size_long_kf.is_launched():
-            self.size_long_kf.stop()
-        self.size_short_kf.launch('continue')
-        if self.num >= 7:
-            if self.high_point_pos_down_kf.is_launched():
-                self.high_point_pos_down_kf.stop()
-            self.high_point_pos_up_kf.launch('continue')
-        self.sound.fadeout(500)
+        if self.played:
+            if self.num_text_pos_down_kf.is_launched():
+                self.num_text_pos_down_kf.stop()
+            self.num_text_pos_up_kf.launch('continue')
+            if self.size_long_kf.is_launched():
+                self.size_long_kf.stop()
+            self.size_short_kf.launch('continue')
+            if self.num >= 7:
+                if self.high_point_pos_down_kf.is_launched():
+                    self.high_point_pos_down_kf.stop()
+                self.high_point_pos_up_kf.launch('continue')
+            self.sound.fadeout(500)
+            my_serial.send_write_order([0x00, 0x01, self.num])
+            self.played = False
 
 class Note(fantas.IconText):
     color_family = (

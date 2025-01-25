@@ -15,8 +15,9 @@ from style import *
 u.init((800, 800), r=1)
 u.images = fantas.load_res_group(Path('./res/images/').iterdir())
 u.fonts = fantas.load_res_group(Path('./res/fonts/').iterdir())
+u.sounds = fantas.load_res_group(Path('./res/sounds/').iterdir())
 
-pygame.display.set_caption('简易电子琴上位机1.0 -> Written By Fantastair')
+pygame.display.set_caption('简易电子琴上位机 -> Written By Fantastair')
 pygame.display.set_icon(u.images['icon'])
 
 import init_page

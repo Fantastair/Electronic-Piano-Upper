@@ -432,168 +432,168 @@ class WebURL_Widget(fantas.AnyButton):
 # ==============================
 # '''
 
-class InputLine(fantas.Label):
-    # 单行输入框
+# class InputLine(fantas.Label):
+#     # 单行输入框
 
-    __slots__ = ['font', 'style', 'textstyle', 'maxinput', 'startpos', 'endpos', 'cursor', 'cursorpos', 'editing', 'text', 'tiptext', 'inputwidget', 'mousewidget', 'keywidget', 'move_cursor', 'shake_cursor', 'inputed_text', 'inputed_pos']
+#     __slots__ = ['font', 'style', 'textstyle', 'maxinput', 'startpos', 'endpos', 'cursor', 'cursorpos', 'editing', 'text', 'tiptext', 'inputwidget', 'mousewidget', 'keywidget', 'move_cursor', 'shake_cursor', 'inputed_text', 'inputed_pos']
 
-    def __init__(self, size, font, style, textstyle, tiptext=None, maxinput=None, **kwargs):
-        super().__init__(size, **kwargs)
-        self.font = font
-        self.style = style
-        self.textstyle = textstyle
-        self.maxinput = maxinput
-        self.startpos = style['text_pad']
-        self.endpos = self.origin_size[0] - self.startpos
-        self.cursor = fantas.Label(style['cursor_size'], bg=style['cursor_bg'], midleft=(self.startpos,self.origin_size[1]/2))
-        self.cursorpos = 0
-        self.editing = False
-        self.text = fantas.Text('', font, textstyle, midleft=(self.startpos,self.origin_size[1]/2))
-        self.text.anchor = 'midleft'
-        self.text.join(self)
-        if tiptext is not None:
-            self.tiptext = fantas.Text(tiptext, font, dict(textstyle), midleft=(self.startpos,self.origin_size[1]/2))
-            self.tiptext.join(self)
-        else:
-            self.tiptext = None
-        self.inputwidget = InputLineWidget(self)
-        self.mousewidget = InputLineMouseWidget(self, 2)
-        self.keywidget = InputLineKeyWidget(self)
-        self.mousewidget.apply_event()
-        self.move_cursor = fantas.RectKeyFrame(self.cursor, 'left', self.startpos, 6, u.harmonic_curve)
-        self.shake_cursor = fantas.RectKeyFrame(self.cursor, 'left', 6, 12, u.sin_curve, absolute=False)
+#     def __init__(self, size, font, style, textstyle, tiptext=None, maxinput=None, **kwargs):
+#         super().__init__(size, **kwargs)
+#         self.font = font
+#         self.style = style
+#         self.textstyle = textstyle
+#         self.maxinput = maxinput
+#         self.startpos = style['text_pad']
+#         self.endpos = self.origin_size[0] - self.startpos
+#         self.cursor = fantas.Label(style['cursor_size'], bg=style['cursor_bg'], midleft=(self.startpos,self.origin_size[1]/2))
+#         self.cursorpos = 0
+#         self.editing = False
+#         self.text = fantas.Text('', font, textstyle, midleft=(self.startpos,self.origin_size[1]/2))
+#         self.text.anchor = 'midleft'
+#         self.text.join(self)
+#         if tiptext is not None:
+#             self.tiptext = fantas.Text(tiptext, font, dict(textstyle), midleft=(self.startpos,self.origin_size[1]/2))
+#             self.tiptext.join(self)
+#         else:
+#             self.tiptext = None
+#         self.inputwidget = InputLineWidget(self)
+#         self.mousewidget = InputLineMouseWidget(self, 2)
+#         self.keywidget = InputLineKeyWidget(self)
+#         self.mousewidget.apply_event()
+#         self.move_cursor = fantas.RectKeyFrame(self.cursor, 'left', self.startpos, 6, u.harmonic_curve)
+#         self.shake_cursor = fantas.RectKeyFrame(self.cursor, 'left', 6, 12, u.sin_curve, absolute=False)
 
-    def adapt(self):
-        # 将光标移动到正确的位置
-        if self.cursorpos == len(self.text.text):
-            self.move_cursor.value = self.text.rect.right
-        else:
-            self.move_cursor.value = self.font.get_rect(self.text.text[:self.cursorpos], size=self.textstyle['size']).width + self.text.rect.left
-        if self.move_cursor.value < self.startpos:
-            offset = self.startpos - self.move_cursor.value
-            self.move_cursor.value += offset
-            self.text.rect.left += offset
-        elif self.move_cursor.value+self.cursor.rect.width > self.endpos:
-            offset = self.move_cursor.value+self.cursor.rect.width - self.endpos
-            self.move_cursor.value -= offset
-            self.text.rect.left -= offset
-        self.move_cursor.launch(flag='continue')
-        if self.tiptext is not None and self.text.text != '' and self.tiptext.father is self:
-            self.tiptext.leave()
+#     def adapt(self):
+#         # 将光标移动到正确的位置
+#         if self.cursorpos == len(self.text.text):
+#             self.move_cursor.value = self.text.rect.right
+#         else:
+#             self.move_cursor.value = self.font.get_rect(self.text.text[:self.cursorpos], size=self.textstyle['size']).width + self.text.rect.left
+#         if self.move_cursor.value < self.startpos:
+#             offset = self.startpos - self.move_cursor.value
+#             self.move_cursor.value += offset
+#             self.text.rect.left += offset
+#         elif self.move_cursor.value+self.cursor.rect.width > self.endpos:
+#             offset = self.move_cursor.value+self.cursor.rect.width - self.endpos
+#             self.move_cursor.value -= offset
+#             self.text.rect.left -= offset
+#         self.move_cursor.launch(flag='continue')
+#         if self.tiptext is not None and self.text.text != '' and self.tiptext.father is self:
+#             self.tiptext.leave()
 
-    def get_input(self):
-        # 获取当前输入
-        return self.text.text
+#     def get_input(self):
+#         # 获取当前输入
+#         return self.text.text
 
-    def clear(self):
-        # 清空当前输入
-        self.text.text = ''
-        self.text.update_img()
-        self.cursorpos = 0
-        self.cursor.rect.left = self.startpos
-        self.editing = False
-        if self.tiptext is not None and self.tiptext.father is None:
-            self.tiptext.join(self)
+#     def clear(self):
+#         # 清空当前输入
+#         self.text.text = ''
+#         self.text.update_img()
+#         self.cursorpos = 0
+#         self.cursor.rect.left = self.startpos
+#         self.editing = False
+#         if self.tiptext is not None and self.tiptext.father is None:
+#             self.tiptext.join(self)
 
-class InputLineWidget(fantas.TextInputBase):
-    __slots__ = []
+# class InputLineWidget(fantas.TextInputBase):
+#     __slots__ = []
 
-    def textinput(self, text):
-        if self.ui.editing:
-            if self.ui.maxinput is not None:
-                over = self.ui.maxinput - len(self.ui.inputed_text + text)
-                if over < 0:
-                    text = text[:over]
-            self.ui.cursorpos = self.ui.inputed_pos
-            self.ui.text.text = self.ui.inputed_text[:self.ui.inputed_pos] + text + self.ui.inputed_text[self.ui.inputed_pos:]
-            self.ui.editing = False
-        else:
-            if self.ui.maxinput is not None:
-                over = self.ui.maxinput - len(self.ui.text.text + text)
-                if over < 0:
-                    text = text[:over]
-            self.ui.text.text = self.ui.text.text[:self.ui.cursorpos] + text + self.ui.text.text[self.ui.cursorpos:]
-        self.ui.text.update_img()
-        self.ui.cursorpos += len(text)
-        self.ui.adapt()
-        if self.ui.maxinput is not None:
-            if over < 0:
-                self.ui.move_cursor.stop()
-                self.ui.shake_cursor.launch(start=self.ui.move_cursor.value, flag='restart')
+#     def textinput(self, text):
+#         if self.ui.editing:
+#             if self.ui.maxinput is not None:
+#                 over = self.ui.maxinput - len(self.ui.inputed_text + text)
+#                 if over < 0:
+#                     text = text[:over]
+#             self.ui.cursorpos = self.ui.inputed_pos
+#             self.ui.text.text = self.ui.inputed_text[:self.ui.inputed_pos] + text + self.ui.inputed_text[self.ui.inputed_pos:]
+#             self.ui.editing = False
+#         else:
+#             if self.ui.maxinput is not None:
+#                 over = self.ui.maxinput - len(self.ui.text.text + text)
+#                 if over < 0:
+#                     text = text[:over]
+#             self.ui.text.text = self.ui.text.text[:self.ui.cursorpos] + text + self.ui.text.text[self.ui.cursorpos:]
+#         self.ui.text.update_img()
+#         self.ui.cursorpos += len(text)
+#         self.ui.adapt()
+#         if self.ui.maxinput is not None:
+#             if over < 0:
+#                 self.ui.move_cursor.stop()
+#                 self.ui.shake_cursor.launch(start=self.ui.move_cursor.value, flag='restart')
 
-    def textedit(self, text, start):
-        if not self.ui.editing:
-            self.ui.editing = True
-            self.ui.inputed_text = self.ui.text.text
-            self.ui.inputed_pos = self.ui.cursorpos
-        self.ui.text.text = self.ui.inputed_text[:self.ui.inputed_pos] + text + self.ui.inputed_text[self.ui.inputed_pos:]
-        self.ui.text.update_img()
-        self.ui.cursorpos = self.ui.inputed_pos + start
-        self.ui.adapt()
+#     def textedit(self, text, start):
+#         if not self.ui.editing:
+#             self.ui.editing = True
+#             self.ui.inputed_text = self.ui.text.text
+#             self.ui.inputed_pos = self.ui.cursorpos
+#         self.ui.text.text = self.ui.inputed_text[:self.ui.inputed_pos] + text + self.ui.inputed_text[self.ui.inputed_pos:]
+#         self.ui.text.update_img()
+#         self.ui.cursorpos = self.ui.inputed_pos + start
+#         self.ui.adapt()
 
-    def start_input(self):
-        super().start_input()
-        self.ui.cursor.join(self.ui)
-        self.ui.keywidget.apply_event()
-        pygame.key.set_repeat(300, 50)
+#     def start_input(self):
+#         super().start_input()
+#         self.ui.cursor.join(self.ui)
+#         self.ui.keywidget.apply_event()
+#         pygame.key.set_repeat(300, 50)
 
-    def stop_input(self):
-        super().stop_input()
-        self.ui.cursor.leave()
-        self.ui.keywidget.cancel_event()
-        pygame.key.set_repeat()
+#     def stop_input(self):
+#         super().stop_input()
+#         self.ui.cursor.leave()
+#         self.ui.keywidget.cancel_event()
+#         pygame.key.set_repeat()
 
-class InputLineMouseWidget(fantas.MouseBase):
-    __slots__ = []
+# class InputLineMouseWidget(fantas.MouseBase):
+#     __slots__ = []
 
-    def mousepress(self, pos, button):
-        if button == 1:
-            if self.ui.inputwidget.inputing:
-                if not self.ui.rect.collidepoint(pos):
-                    self.ui.inputwidget.stop_input()
-            elif self.ui.rect.collidepoint(pos):
-                self.ui.inputwidget.start_input()
+#     def mousepress(self, pos, button):
+#         if button == 1:
+#             if self.ui.inputwidget.inputing:
+#                 if not self.ui.rect.collidepoint(pos):
+#                     self.ui.inputwidget.stop_input()
+#             elif self.ui.rect.collidepoint(pos):
+#                 self.ui.inputwidget.start_input()
 
-    def mousein(self):
-        u.set_cursor('I')
+#     def mousein(self):
+#         u.set_cursor('I')
 
-    def mouseout(self):
-        u.set_cursor_back()
+#     def mouseout(self):
+#         u.set_cursor_back()
 
-class InputLineKeyWidget(fantas.KeyboardBase):
-    __slots__ = []
+# class InputLineKeyWidget(fantas.KeyboardBase):
+#     __slots__ = []
 
-    def keyboardpress(self, key, shortcut):
-        if key == 'backspace':
-            if self.ui.text.text and self.ui.cursorpos != 0:
-                if shortcut == 'Backspace':
-                    self.ui.text.text = self.ui.text.text[:self.ui.cursorpos-1] + self.ui.text.text[self.ui.cursorpos:]
-                    self.ui.cursorpos -= 1
-                elif shortcut == 'Ctrl+Backspace':
-                    self.ui.text.text = self.ui.text.text[self.ui.cursorpos:]
-                    self.ui.cursorpos = 0
-                if self.ui.tiptext is not None and self.ui.text.text == '':
-                    self.ui.tiptext.join(self.ui)
-                self.ui.text.update_img()
-                self.ui.adapt()
-        elif shortcut == 'Left':
-            self.ui.cursorpos -= 1
-            self.ui.cursorpos = max(self.ui.cursorpos, 0)
-            self.ui.adapt()
-            self.ui.mark_update()
-        elif shortcut == 'Right':
-            self.ui.cursorpos += 1
-            self.ui.cursorpos = min(self.ui.cursorpos, len(self.ui.text.text))
-            self.ui.adapt()
-            self.ui.mark_update()
-        elif shortcut == 'Up' or shortcut == 'Ctrl+Left':
-            self.ui.cursorpos = 0
-            self.ui.adapt()
-            self.ui.mark_update()
-        elif shortcut == 'Down' or shortcut == 'Ctrl+Right':
-            self.ui.cursorpos = len(self.ui.text.text)
-            self.ui.adapt()
-            self.ui.mark_update()
+#     def keyboardpress(self, key, shortcut):
+#         if key == 'backspace':
+#             if self.ui.text.text and self.ui.cursorpos != 0:
+#                 if shortcut == 'Backspace':
+#                     self.ui.text.text = self.ui.text.text[:self.ui.cursorpos-1] + self.ui.text.text[self.ui.cursorpos:]
+#                     self.ui.cursorpos -= 1
+#                 elif shortcut == 'Ctrl+Backspace':
+#                     self.ui.text.text = self.ui.text.text[self.ui.cursorpos:]
+#                     self.ui.cursorpos = 0
+#                 if self.ui.tiptext is not None and self.ui.text.text == '':
+#                     self.ui.tiptext.join(self.ui)
+#                 self.ui.text.update_img()
+#                 self.ui.adapt()
+#         elif shortcut == 'Left':
+#             self.ui.cursorpos -= 1
+#             self.ui.cursorpos = max(self.ui.cursorpos, 0)
+#             self.ui.adapt()
+#             self.ui.mark_update()
+#         elif shortcut == 'Right':
+#             self.ui.cursorpos += 1
+#             self.ui.cursorpos = min(self.ui.cursorpos, len(self.ui.text.text))
+#             self.ui.adapt()
+#             self.ui.mark_update()
+#         elif shortcut == 'Up' or shortcut == 'Ctrl+Left':
+#             self.ui.cursorpos = 0
+#             self.ui.adapt()
+#             self.ui.mark_update()
+#         elif shortcut == 'Down' or shortcut == 'Ctrl+Right':
+#             self.ui.cursorpos = len(self.ui.text.text)
+#             self.ui.adapt()
+#             self.ui.mark_update()
 '''
 
 

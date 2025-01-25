@@ -58,7 +58,7 @@ class KeyFrame:
 
     def transform(self):
         # 执行一次变换
-        r = self.curve.calc(self.currentframe/self.totalframe)
+        r = self.curve.calc((self.currentframe+1)/self.totalframe)
         if isinstance(self.offset, tuple):
             return fantas.tuple_operate(self.start, fantas.tuple_int_operate(self.offset, r, fantas.mul), fantas.add)
         elif isinstance(self.offset, pygame.Color):
@@ -126,8 +126,8 @@ class AttrKeyFrame(KeyFrame):
         super().__init__(curve)
 
     def tick(self):
-        super().tick()
         setattr(self.subject, self.attr, self.transform())
+        super().tick()
 
     def launch(self, flag='nothing', start=None):
         # 启动关键帧
@@ -235,118 +235,118 @@ class TextKeyFrame(KeyFrame):
             u.keyframe_queue.append(self)
         return self
 
-class TimeTextKeyFrame(AttrKeyFrame):
-    # 控制时间文本显示的关键帧
-    __slots__ = []
+# class TimeTextKeyFrame(AttrKeyFrame):
+#     # 控制时间文本显示的关键帧
+#     __slots__ = []
 
-    def tick(self):
-        super().tick()
-        self.subject.set_time(self.subject.time)
-
-
-class MutiLabelKeyFrame(LabelKeyFrame):
-    # 一个关键帧同时可以控制多个Label对象的相同属性
-    # 一般不用于位置属性
-    __slots__ = ('label_group', 'append', 'insert', 'remove', 'pop', 'index')
-
-    def __init__(self, label_group=[], *args, **kwargs):
-        self.label_group = label_group
-        super().__init__(self.label_group[0], *args, **kwargs)
-        self.append = self.label_group.append
-        self.insert = self.label_group.insert
-        self.remove = self.label_group.remove
-        self.pop = self.label_group.pop
-        self.index = self.label_group.index
-
-    def tick(self):
-        t = self.transform()
-        for i in self.label_group:
-            getattr(i, f'set_{self.attr}')(t)
-        KeyFrame.tick(self)
+#     def tick(self):
+#         self.subject.set_time(self.subject.time)
+#         super().tick()
 
 
-class TimeTicker:
-    # 控制时间文本用于计时
-    __slots__ = ('timetext', 'weight', 'end', 'trigger', 'start', 'start_ms', 'trigger_point')
+# class MutiLabelKeyFrame(LabelKeyFrame):
+#     # 一个关键帧同时可以控制多个Label对象的相同属性
+#     # 一般不用于位置属性
+#     __slots__ = ('label_group', 'append', 'insert', 'remove', 'pop', 'index')
 
-    def __init__(self, timetext, weight=1, end=None):
-        self.timetext = timetext
-        self.weight = weight
-        self.end = end
-        self.trigger = []
+#     def __init__(self, label_group=[], *args, **kwargs):
+#         self.label_group = label_group
+#         super().__init__(self.label_group[0], *args, **kwargs)
+#         self.append = self.label_group.append
+#         self.insert = self.label_group.insert
+#         self.remove = self.label_group.remove
+#         self.pop = self.label_group.pop
+#         self.index = self.label_group.index
 
-    def launch(self, flag=None, start=None):
-        if self not in u.keyframe_queue:
-            u.keyframe_queue.append(self)
-        if start is None:
-            if flag == 'continue':
-                self.start = self.timetext.get_time()
-            else:
-                self.start = 0
-        else:
-            self.start = start
-        self.start_ms = pygame.time.get_ticks()
-        self.trigger_point = 0
-        return self
-
-    def is_launched(self):
-        return self in u.keyframe_queue
-
-    def stop(self):
-        if self in u.keyframe_queue:
-            u.keyframe_queue.remove(self)
-
-    def set_end(self, end):
-        self.end = end
-
-    def tick(self):
-        seconds = self.start + (pygame.time.get_ticks() - self.start_ms) / 1000 * self.weight
-        self.timetext.set_time(seconds)
-        if self.trigger:
-            for i in range(len(self.trigger[self.trigger_point:])):
-                t = self.trigger[i]
-                if t[0]*self.wetght <= seconds*self.wetght:
-                    t[1](*t[2], **t[3])
-                    self.trigger_point = i + 1
-                    break
-        if self.end is not None and self.weight > 0 and seconds >= self.end:
-            self.stop()
-
-    def set_trigger(self, sec, func, *args, **kwargs):
-        for i in range(len(self.trigger)):
-            if sec*self.weight > self.trigger[i][0]*self.weight:
-                self.trigger.insert(i, (sec, func, args, kwargs))
-                return
-            elif sec == self.trigger[i][0]:
-                self.trigger[i] = (sec, func, args, kwargs)
-                return
-        self.trigger.append((sec, func, args, kwargs))
-
-    def remove_trigger(self, sec):
-        for i in self.trigger:
-            if sec == i[0]:
-                self.trigger.remove(i)
-                return
+#     def tick(self):
+#         t = self.transform()
+#         for i in self.label_group:
+#             getattr(i, f'set_{self.attr}')(t)
+#         KeyFrame.tick(self)
 
 
-class BezierRectKeyFrame(KeyFrame):
-    # 通过贝塞尔曲线控制位置运动
-    __slots__ = ('ui', 'attr')
+# class TimeTicker:
+#     # 控制时间文本用于计时
+#     __slots__ = ('timetext', 'weight', 'end', 'trigger', 'start', 'start_ms', 'trigger_point')
 
-    def __init__(self, ui, attr, totalframe, curve):
-        super().__init__(curve)
-        self.ui = ui
-        self.attr = attr
-        self.totalframe = totalframe
-        self.currentframe = 0
+#     def __init__(self, timetext, weight=1, end=None):
+#         self.timetext = timetext
+#         self.weight = weight
+#         self.end = end
+#         self.trigger = []
 
-    def launch(self, flag=None):
-        super().launch()
-        if flag is None:
-            self.currentframe = 0
-        return self
+#     def launch(self, flag=None, start=None):
+#         if self not in u.keyframe_queue:
+#             u.keyframe_queue.append(self)
+#         if start is None:
+#             if flag == 'continue':
+#                 self.start = self.timetext.get_time()
+#             else:
+#                 self.start = 0
+#         else:
+#             self.start = start
+#         self.start_ms = pygame.time.get_ticks()
+#         self.trigger_point = 0
+#         return self
 
-    def tick(self):
-        setattr(self.ui.rect, self.attr, self.curve.calc(self.currentframe / self.totalframe))
-        self.ui.father.mark_update()
-        super().tick()
+#     def is_launched(self):
+#         return self in u.keyframe_queue
+
+#     def stop(self):
+#         if self in u.keyframe_queue:
+#             u.keyframe_queue.remove(self)
+
+#     def set_end(self, end):
+#         self.end = end
+
+#     def tick(self):
+#         seconds = self.start + (pygame.time.get_ticks() - self.start_ms) / 1000 * self.weight
+#         self.timetext.set_time(seconds)
+#         if self.trigger:
+#             for i in range(len(self.trigger[self.trigger_point:])):
+#                 t = self.trigger[i]
+#                 if t[0]*self.wetght <= seconds*self.wetght:
+#                     t[1](*t[2], **t[3])
+#                     self.trigger_point = i + 1
+#                     break
+#         if self.end is not None and self.weight > 0 and seconds >= self.end:
+#             self.stop()
+
+#     def set_trigger(self, sec, func, *args, **kwargs):
+#         for i in range(len(self.trigger)):
+#             if sec*self.weight > self.trigger[i][0]*self.weight:
+#                 self.trigger.insert(i, (sec, func, args, kwargs))
+#                 return
+#             elif sec == self.trigger[i][0]:
+#                 self.trigger[i] = (sec, func, args, kwargs)
+#                 return
+#         self.trigger.append((sec, func, args, kwargs))
+
+#     def remove_trigger(self, sec):
+#         for i in self.trigger:
+#             if sec == i[0]:
+#                 self.trigger.remove(i)
+#                 return
+
+
+# class BezierRectKeyFrame(KeyFrame):
+#     # 通过贝塞尔曲线控制位置运动
+#     __slots__ = ('ui', 'attr')
+
+#     def __init__(self, ui, attr, totalframe, curve):
+#         super().__init__(curve)
+#         self.ui = ui
+#         self.attr = attr
+#         self.totalframe = totalframe
+#         self.currentframe = 0
+
+#     def launch(self, flag=None):
+#         super().launch()
+#         if flag is None:
+#             self.currentframe = 0
+#         return self
+
+#     def tick(self):
+#         setattr(self.ui.rect, self.attr, self.curve.calc(self.currentframe / self.totalframe))
+#         self.ui.father.mark_update()
+#         super().tick()

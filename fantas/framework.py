@@ -14,6 +14,12 @@ class UiManager:
     images: dict
     fonts: dict
     sounds: dict
+    curve: fantas.Curve
+    faster_curve: fantas.FormulaCurve
+    slower_curve: fantas.FormulaCurve
+    harmonic_curve: fantas.FormulaCurve
+    sin_curve: fantas.FormulaCurve
+    rebound_curve: fantas.FormulaCurve
 
     def __init__(self):
         self.fps = 60
@@ -196,6 +202,9 @@ class Ui(fantas.NodeBase):
     # 图形显示的基本单元
 
     __slots__ = ['anchor', 'angle', 'alpha', 'origin_alpha', 'update_flag', 'widgetgroup', 'img', 'size', 'origin_size', 'rect', 'temp_img']
+
+    father: 'Ui'
+    kidgroup: list['Ui']
 
     def __init__(self, img, **anchor):
         self.anchor = 'center'
@@ -404,40 +413,40 @@ class Widget:
         pass
 
 
-class UiGroup(Ui):
-    # Ui组，用于方便地管理多个同级Ui对象
-    # 参与位置嵌套
+# class UiGroup(Ui):
+#     # Ui组，用于方便地管理多个同级Ui对象
+#     # 参与位置嵌套
 
-    __slots__ = ['rect_locked', 'widgetgroup', 'rect', 'anchor']
+#     __slots__ = ['rect_locked', 'widgetgroup', 'rect', 'anchor']
 
-    def __init__(self):
-        fantas.NodeBase.__init__(self)
-        self.anchor = 'center'
-        self.rect_locked = False
-        self.widgetgroup = None
-        self.rect = pygame.Rect((0,0,0,0))
+#     def __init__(self):
+#         fantas.NodeBase.__init__(self)
+#         self.anchor = 'center'
+#         self.rect_locked = False
+#         self.widgetgroup = None
+#         self.rect = pygame.Rect((0,0,0,0))
 
-    def update_rect(self, anchor=None):
-        if anchor is None:
-            anchor = self.anchor
-        pos = getattr(self.rect, anchor)
-        length = len(self.kidgroup)
-        if length == 1:
-            self.rect.size = self.kidgroup[0].rect.size
-        elif length != 0:
-            self.rect.size = self.kidgroup[0].rect.unionall([ui.rect for ui in self.kidgroup[1:]]).size
-        setattr(self.rect, anchor, pos)
+#     def update_rect(self, anchor=None):
+#         if anchor is None:
+#             anchor = self.anchor
+#         pos = getattr(self.rect, anchor)
+#         length = len(self.kidgroup)
+#         if length == 1:
+#             self.rect.size = self.kidgroup[0].rect.size
+#         elif length != 0:
+#             self.rect.size = self.kidgroup[0].rect.unionall([ui.rect for ui in self.kidgroup[1:]]).size
+#         setattr(self.rect, anchor, pos)
 
-    def render(self, target=None):
-        if target is None:
-            self.temp_img = self.father.temp_img
-        else:
-            self.temp_img = target
-        if not self.rect_locked:
-            self.update_rect()
-        for ui in self.kidgroup:
-            ui.rect.left += self.rect.left
-            ui.rect.top += self.rect.top
-            ui.render()
-            ui.rect.left -= self.rect.left
-            ui.rect.top -= self.rect.top
+#     def render(self, target=None):
+#         if target is None:
+#             self.temp_img = self.father.temp_img
+#         else:
+#             self.temp_img = target
+#         if not self.rect_locked:
+#             self.update_rect()
+#         for ui in self.kidgroup:
+#             ui.rect.left += self.rect.left
+#             ui.rect.top += self.rect.top
+#             ui.render()
+#             ui.rect.left -= self.rect.left
+#             ui.rect.top -= self.rect.top

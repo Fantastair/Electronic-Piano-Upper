@@ -178,46 +178,46 @@ class KeyboardBase(Widget):
         pass
 
 # '''
-class TextInputBase(Widget):
-    # 文本输入事件抽象
+# class TextInputBase(Widget):
+#     # 文本输入事件抽象
 
-    __slots__ = ['inputing']
+#     __slots__ = ['inputing']
 
-    events = (pygame.TEXTINPUT, pygame.TEXTEDITING)
-    rect = pygame.Rect((0,0,0,0))
+#     events = (pygame.TEXTINPUT, pygame.TEXTEDITING)
+#     rect = pygame.Rect((0,0,0,0))
 
-    def __init__(self, ui):
-        super().__init__(ui)
-        self.inputing = False
+#     def __init__(self, ui):
+#         super().__init__(ui)
+#         self.inputing = False
 
-    def start_input(self):
-        # 开始接收输入
-        pygame.key.start_text_input()
-        left, top = self.ui.get_absolute_pos()
-        self.rect.topleft = (left, top+self.ui.rect.height)
-        pygame.key.set_text_input_rect(self.rect)
-        self.apply_event()
-        self.inputing = True
+#     def start_input(self):
+#         # 开始接收输入
+#         pygame.key.start_text_input()
+#         left, top = self.ui.get_absolute_pos()
+#         self.rect.topleft = (left, top+self.ui.rect.height)
+#         pygame.key.set_text_input_rect(self.rect)
+#         self.apply_event()
+#         self.inputing = True
 
-    def stop_input(self):
-        # 停止接收输入
-        pygame.key.stop_text_input()
-        self.cancel_event()
-        self.inputing = False
+#     def stop_input(self):
+#         # 停止接收输入
+#         pygame.key.stop_text_input()
+#         self.cancel_event()
+#         self.inputing = False
 
-    def handle(self, event):
-        if self.inputing and event.type in self.events:
-            if event.type == pygame.TEXTINPUT:
-                self.textinput(event.text)  # 文本输入
-            elif event.type == pygame.TEXTEDITING:
-                self.textedit(event.text, event.start)  # 文本编辑
+#     def handle(self, event):
+#         if self.inputing and event.type in self.events:
+#             if event.type == pygame.TEXTINPUT:
+#                 self.textinput(event.text)  # 文本输入
+#             elif event.type == pygame.TEXTEDITING:
+#                 self.textedit(event.text, event.start)  # 文本编辑
 
-    def textinput(self, text):
-        pass
+#     def textinput(self, text):
+#         pass
 
-    def textedit(self, text, start):
-        # start下次输入文本的位置
-        pass
+#     def textedit(self, text, start):
+#         # start下次输入文本的位置
+#         pass
 # '''
 '''
 class HoverMessage(MouseBase):

@@ -10,10 +10,10 @@ icon = fantas.Ui(u.images['icon'], center=(u.WIDTH // 2, u.HEIGHT // 2))
 icon.size = (0, 0)
 icon.alpha = 0
 icon_alpha_kf = fantas.UiKeyFrame(icon, 'alpha', 255, 8, u.curve)
-icon_size_kf = fantas.UiKeyFrame(icon, 'size', (256, 256), 40, fantas.SuperCurve((fantas.FormulaCurve('25*x**2'), fantas.FormulaCurve('1+math.sqrt(0.1616 - (x - 0.6)**2)')), (0, 0.2)))
+icon_size_kf = fantas.UiKeyFrame(icon, 'size', (232, 232), 40, fantas.SuperCurve((fantas.FormulaCurve('25*x**2'), fantas.FormulaCurve('1+math.sqrt(0.1616 - (x - 0.6)**2)')), (0, 0.2)))
 
 stm32_box = fantas.Label((200, 200), 12, FAKEWHITE, DEEPBLUE, {'border_radius': 100}, center=(u.WIDTH // 2, u.HEIGHT // 2))
-stm32_box_radius_kf = fantas.LabelKeyFrame(stm32_box, 'radius', 16, 15, u.faster_curve)
+stm32_box_radius_kf = fantas.LabelKeyFrame(stm32_box, 'radius', 24, 15, u.faster_curve)
 stm32_box_shake_kf = fantas.RectKeyFrame(stm32_box, 'centerx', u.WIDTH // 2 + 20, 24, fantas.SuperCurve((fantas.FormulaCurve('0.5-0.5*math.cos(4*math.pi*x)'), fantas.FormulaCurve('-math.sin(6*math.pi*x)'), fantas.FormulaCurve('0.5*math.cos(4*math.pi*x)-0.5')), (0, 0.25, 0.75)))
 stm32_box_color_kf = fantas.LabelKeyFrame(stm32_box, 'sc', LIGHTRED, 16, u.curve)
 
@@ -54,7 +54,7 @@ group_text.alpha = 0
 group_text_alpha_kf = fantas.UiKeyFrame(group_text, 'alpha', 255, 80, u.curve)
 
 tip_text1 = fantas.Text('连接失败', u.fonts['shuhei'], tip_text_style, center=(100, 80))
-tip_text2 = fantas.Text('点击重连', u.fonts['shuhei'], tip_text_style, center=(100, 120))
+tip_text2 = fantas.Text('正在尝试', u.fonts['shuhei'], tip_text_style, center=(100, 120))
 
 def ani1():
     icon_size_kf.launch()
@@ -490,10 +490,19 @@ def ani13():
 def check_serial():
     if my_serial.connected:
         import main_page
+        main_page.go_back = go_back
         u.root = main_page.root
         main_page.ani1()
     else:
         ani13()
+
+def go_back():
+    tip_text1.text = '连接断开'
+    tip_text2.text = '正在重连'
+    tip_text1.update_img()
+    tip_text2.update_img()
+    u.root = root
+    ani12()
 
 def start():
     u.root = root

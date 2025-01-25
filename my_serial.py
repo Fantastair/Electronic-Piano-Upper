@@ -8,6 +8,7 @@ from fantas import uimanager as u
 import pygame
 
 u.CONNECTEDEVENT = pygame.event.custom_type()
+u.UNCONNECTEVENT = pygame.event.custom_type()
 
 def iter_port():
     return [i.name for i in serial.tools.list_ports_windows.iterate_comports()]
@@ -32,6 +33,10 @@ def send_data_package(data):
             print_data(data, True)
             return True
         except serial.serialutil.SerialTimeoutException:
+            unconnect()
+            return False
+        except serial.serialutil.SerialException:
+            unconnect()
             return False
 
 def recv_data_package():
@@ -43,9 +48,13 @@ def recv_data_package():
             if (my_serial.read(2) != bytes(package_tail)):
                 return None
             print_data(result, False)
+            return result
         except serial.SerialTimeoutException:
+            unconnect()
             return None
-        return result
+        except serial.serialutil.SerialException:
+            unconnect()
+            return None
 
 
 def send_write_order(data):
@@ -65,48 +74,51 @@ send_data_queue = []    # ('w'/'r'，数据本身，[读指令给一个函数接
 def serial_thread():
     global connected
 
-    while not connected:
-        # '''
-        # time.sleep(6)
-        connected = True
-        '''
-        for i in iter_port():
-            print(f'尝试连接 {i}', end=' ---- ')
-            if open_serial(i):
-                print('尝试握手', end=' ---- ')
-                flag = True
-                if not send_data_package([0x02, 0x00]):
-                    flag = False
-                else:
-                    recv = recv_data_package()
-                    if recv is None or len(recv) != 1 or recv[0] != 0x66:
-                        flag = False
-                if flag:
-                    print('握手成功，成功连接到下位机')
-                    connected = True
-                    break
-                else:
-                    print('握手失败，此连接不是下位机')
-            else:
-                print('连接失败')
-        # '''
-
-    pygame.event.post(pygame.event.Event(u.CONNECTEDEVENT))
     while running:
-        if send_data_queue:
-            with lock:
-                data = send_data_queue.pop(0)
-            if data[0] == 'w':
-                send_data_package([0x12] + data[1])
-                while int.from_bytes(my_serial.read()) != 0x88:
-                    pass
-            elif data[0] == 'r':
-                if send_data_package([0x02] + data[1]):
-                    recv = recv_data_package()
-                    if recv is not None:
-                        data[2](recv)
-        else:
-            time.sleep(0.1)
+        while not connected:
+            '''
+            # time.sleep(6)
+            connected = True
+            '''
+            for i in iter_port():
+                print(f'尝试连接 {i}', end=' ---- ')
+                if open_serial(i):
+                    print('尝试握手', end=' ---- ')
+                    flag = True
+                    if not send_data_package([0x02, 0x00]):
+                        flag = False
+                    else:
+                        recv = recv_data_package()
+                        if recv is None or len(recv) != 1 or recv[0] != 0x66:
+                            flag = False
+                    if flag:
+                        print('握手成功，成功连接到下位机')
+                        connect()
+                        break
+                    else:
+                        print('握手失败，此连接不是下位机')
+                else:
+                    print('连接失败')
+            # '''
+        while running and connected:
+            if send_data_queue:
+                with lock:
+                    data = send_data_queue.pop(0)
+                if data[0] == 'w':
+                    send_data_package([0x12] + data[1])
+                    try:
+                        while int.from_bytes(my_serial.read()) != 0x88:
+                            pass
+                    except serial.serialutil.SerialException:
+                        unconnect()
+                        break
+                elif data[0] == 'r':
+                    if send_data_package([0x02] + data[1]):
+                        recv = recv_data_package()
+                        if recv is not None:
+                            data[2](recv)
+            else:
+                time.sleep(0.1)
 
 my_serial = None
 
@@ -146,6 +158,20 @@ def start_connect():
     t = threading.Thread(target=serial_thread)
     t.daemon = True
     t.start()
+
+def unconnect():
+    global connected
+    if connected:
+        connected = False
+        pygame.event.post(pygame.event.Event(u.UNCONNECTEVENT))
+        print('unconnect')
+
+def connect():
+    global connected
+    if not connected:
+        connected = True
+        pygame.event.post(pygame.event.Event(u.CONNECTEDEVENT))
+        print('connected')
 
 if __name__ == '__main__':
     print(iter_port())

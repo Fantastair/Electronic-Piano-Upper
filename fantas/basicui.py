@@ -174,58 +174,58 @@ class Text(fantas.Ui):
         return img
 
 
-class TimeText(Text):
-    # 显示时间的文本类
-    __slots__ = ['structure', 'time']
+# class TimeText(Text):
+#     # 显示时间的文本类
+#     __slots__ = ['structure', 'time']
 
-    def __init__(self, structure: str, *args, **kwargs):
-        # structure 定义显示时间的结构
-        # '::'表示显示时间为00:00;
-        # '::.'表示时间显示为00:00.0 (小数部分取决于小数位数)
-        self.structure = structure
-        super().__init__('', *args, **kwargs)
+#     def __init__(self, structure: str, *args, **kwargs):
+#         # structure 定义显示时间的结构
+#         # '::'表示显示时间为00:00;
+#         # '::.'表示时间显示为00:00.0 (小数部分取决于小数位数)
+#         self.structure = structure
+#         super().__init__('', *args, **kwargs)
 
-    def set_time(self, time):
-        self.time = time
-        self.text = ''
-        point = self.structure[-1] == '.'
-        if point:
-            self.text = f'.{time-int(time)}'
-        time = int(time)
-        for i in self.structure[:-1] if point else self.structure:
-            self.text = ':' + str(time%60).rjust(2, '0') + self.text
-            time //= 60
-        self.text = self.text[1:]
-        self.update_img()
+#     def set_time(self, time):
+#         self.time = time
+#         self.text = ''
+#         point = self.structure[-1] == '.'
+#         if point:
+#             self.text = f'.{time-int(time)}'
+#         time = int(time)
+#         for i in self.structure[:-1] if point else self.structure:
+#             self.text = ':' + str(time%60).rjust(2, '0') + self.text
+#             time //= 60
+#         self.text = self.text[1:]
+#         self.update_img()
 
-    def set_part_time(self, *args, float_part=0.0):
-        # 显式地设置时间，而不用计算总和，小数部分单独指定
-        # 示例的两条语句等价：
-        # set_part_time(2, 30)
-        # set_time(150)
-        time = 0
-        weight = 1
-        for i in args[::-1]:
-            time += i * weight
-            weight *= 60
-        self.set_time(time)
+#     def set_part_time(self, *args, float_part=0.0):
+#         # 显式地设置时间，而不用计算总和，小数部分单独指定
+#         # 示例的两条语句等价：
+#         # set_part_time(2, 30)
+#         # set_time(150)
+#         time = 0
+#         weight = 1
+#         for i in args[::-1]:
+#             time += i * weight
+#             weight *= 60
+#         self.set_time(time)
 
-    def get_time(self):
-        # 返回当前的设定时间
-        return self.time
+#     def get_time(self):
+#         # 返回当前的设定时间
+#         return self.time
 
-    def get_actrul_time(self):
-        # 返回当前显示的实际时间，取决于结构
-        if '.' in self.text:
-            self.text, time = self.text.split('.')
-            time = float(time)
-        else:
-            time = 0
-        weight = 1
-        for i in self.text.split(':')[::-1]:
-            time += int(i) * weight
-            weight *= 60
-        return time
+#     def get_actrul_time(self):
+#         # 返回当前显示的实际时间，取决于结构
+#         if '.' in self.text:
+#             self.text, time = self.text.split('.')
+#             time = float(time)
+#         else:
+#             time = 0
+#         weight = 1
+#         for i in self.text.split(':')[::-1]:
+#             time += int(i) * weight
+#             weight *= 60
+#         return time
 
 class IconText(Text):
     # 图标文字
@@ -313,91 +313,91 @@ class ChildBox(Label):
         fantas.Widget.cancel_event(self, True)
 '''
 
-class MessageBox(Label):
-    # 消息提示弹窗
-    __slots__ = ['pad', 'text', 'timer']
+# class MessageBox(Label):
+#     # 消息提示弹窗
+#     __slots__ = ['pad', 'text', 'timer']
 
-    def __init__(self, pad, lasttime, font, textstyle, *args, **kwargs):
-        super().__init__((0,0), *args, **kwargs)
-        self.pad = pad
-        self.text = Text('', font, textstyle, topleft=(pad,pad))
-        self.text.join(self)
-        self.text.anchor = 'topleft'
-        self.timer = fantas.Trigger()
-        self.timer.bind_endupwith(self.leave)
-        self.timer.set_trigger(lasttime)
+#     def __init__(self, pad, lasttime, font, textstyle, *args, **kwargs):
+#         super().__init__((0,0), *args, **kwargs)
+#         self.pad = pad
+#         self.text = Text('', font, textstyle, topleft=(pad,pad))
+#         self.text.join(self)
+#         self.text.anchor = 'topleft'
+#         self.timer = fantas.Trigger()
+#         self.timer.bind_endupwith(self.leave)
+#         self.timer.set_trigger(lasttime)
 
-    def load_message(self, message, force=False):
-        # 加载消息
-        if self.text.text != message or force:
-            self.text.text = message
-            self.text.update_img()
-            self.set_size((self.text.rect.w+self.pad*2, self.text.rect.h+self.pad*2))
+#     def load_message(self, message, force=False):
+#         # 加载消息
+#         if self.text.text != message or force:
+#             self.text.text = message
+#             self.text.update_img()
+#             self.set_size((self.text.rect.w+self.pad*2, self.text.rect.h+self.pad*2))
 
-    def show(self, target=None):
-        # 显示弹窗
-        if target is None:
-            target = uimanager.screen.root
-        self.join(target)
-        self.timer.launch()
+#     def show(self, target=None):
+#         # 显示弹窗
+#         if target is None:
+#             target = uimanager.screen.root
+#         self.join(target)
+#         self.timer.launch()
 
 
-class HoverMessageBox(MessageBox):
-    # 悬浮提示弹窗
-    __slots__ = ['alpha_in', 'alpha_out']
+# class HoverMessageBox(MessageBox):
+#     # 悬浮提示弹窗
+#     __slots__ = ['alpha_in', 'alpha_out']
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.timer.bind_endupwith(self.show)
-        self.alpha_in = fantas.UiKeyFrame(self, 'alpha', 255, 5, uimanager.slower_curve)
-        self.alpha_out = fantas.UiKeyFrame(self, 'alpha', 0, 10, uimanager.slower_curve)
-        self.alpha_out.bind_endupwith(self.leave)
-        self.alpha = 0
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.timer.bind_endupwith(self.show)
+#         self.alpha_in = fantas.UiKeyFrame(self, 'alpha', 255, 5, uimanager.slower_curve)
+#         self.alpha_out = fantas.UiKeyFrame(self, 'alpha', 0, 10, uimanager.slower_curve)
+#         self.alpha_out.bind_endupwith(self.leave)
+#         self.alpha = 0
 
-    def show(self, target=None):
-        if self.father is None:
-            if target is None:
-                target = uimanager.root
-            self.join(target)
-        self.alpha_in.launch('continue')
+#     def show(self, target=None):
+#         if self.father is None:
+#             if target is None:
+#                 target = uimanager.root
+#             self.join(target)
+#         self.alpha_in.launch('continue')
 
-    def hide(self):
-        if self.alpha_in.is_launched():
-            self.alpha_in.stop()
-        self.alpha_out.launch('continue')
+#     def hide(self):
+#         if self.alpha_in.is_launched():
+#             self.alpha_in.stop()
+#         self.alpha_out.launch('continue')
 
-    def set_pos(self, pos):
-        self.rect.topleft = pos
-        if self.rect.right > uimanager.size[0]:
-            self.rect.right = uimanager.size[0]
-        elif self.rect.bottom > uimanager.size[1]:
-            self.rect.bottom = uimanager.size[1]
+#     def set_pos(self, pos):
+#         self.rect.topleft = pos
+#         if self.rect.right > uimanager.size[0]:
+#             self.rect.right = uimanager.size[0]
+#         elif self.rect.bottom > uimanager.size[1]:
+#             self.rect.bottom = uimanager.size[1]
 
-class SlideBlock(Label):
-    # 单选滑块
-    __slots__ = ['xy', 'options', 'options_widget', 'scale_slide', 'move_slide', 'last_option']
+# class SlideBlock(Label):
+#     # 单选滑块
+#     __slots__ = ['xy', 'options', 'options_widget', 'scale_slide', 'move_slide', 'last_option']
 
-    def __init__(self, xy, options, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.last_option = None
-        self.xy = xy
-        self.options = options
-        self.options_widget = []
-        for i in options:
-            w = fantas.AnyButton(i)
-            w.bind(self.choose_, i)
-            w.apply_event()
-            self.options_widget.append(w)
-        self.move_slide = fantas.RectKeyFrame(self, f'center{xy}', None, 15, u.harmonic_curve)
+#     def __init__(self, xy, options, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.last_option = None
+#         self.xy = xy
+#         self.options = options
+#         self.options_widget = []
+#         for i in options:
+#             w = fantas.AnyButton(i)
+#             w.bind(self.choose_, i)
+#             w.apply_event()
+#             self.options_widget.append(w)
+#         self.move_slide = fantas.RectKeyFrame(self, f'center{xy}', None, 15, u.harmonic_curve)
 
-    def choose_(self, option):
-        # 选中后动画
-        if option is not self.last_option and not self.move_slide.is_launched():
-            self.move_slide.value = getattr(option.rect, f'center{self.xy}')
-            self.move_slide.launch()
-            self.choose(option)
-            self.last_option = option
+#     def choose_(self, option):
+#         # 选中后动画
+#         if option is not self.last_option and not self.move_slide.is_launched():
+#             self.move_slide.value = getattr(option.rect, f'center{self.xy}')
+#             self.move_slide.launch()
+#             self.choose(option)
+#             self.last_option = option
 
-    def choose(self, option):
-        # 选中选项后执行的操作，在子类里定义
-        pass
+#     def choose(self, option):
+#         # 选中选项后执行的操作，在子类里定义
+#         pass
