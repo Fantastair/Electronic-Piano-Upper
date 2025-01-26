@@ -15,7 +15,7 @@ uimanager.harmonic_curve = FormulaCurve('3*x**2-2*x**3')
 # 正弦(抖动/原地)
 uimanager.sin_curve = FormulaCurve('math.sin(math.pi*x*2)')
 # 抛物线(最高点1)
-# uimanager.parabola1 = FormulaCurve('4*x-4*x**2')
+uimanager.parabola1_curve = FormulaCurve('4*x-4*x**2')
 # 越界回弹线
 uimanager.rebound_curve = FormulaCurve('-2*x**2+3*x')
 # 尺寸回转线

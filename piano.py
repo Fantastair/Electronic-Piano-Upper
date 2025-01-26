@@ -1,13 +1,14 @@
+import random
 import pygame
 import fantas
 from fantas import uimanager as u
+
+import note_display
+
 from style import *
+
 import my_serial
 
-import random
-import math
-# import numpy as np
-# from scipy import signal
 
 class PianoKeyMouseWidget(fantas.MouseBase):
     def __init__(self, ui):
@@ -71,14 +72,7 @@ class PianoKey(fantas.Label):
         self.size_long_kf = fantas.LabelKeyFrame(self, 'size', (self.rect.w, self.rect.h + 12), 10, u.harmonic_curve)
         self.size_short_kf = fantas.LabelKeyFrame(self, 'size', (self.rect.w, self.rect.h), 10, u.harmonic_curve)
         self.color_kf = fantas.LabelKeyFrame(self, 'bg', self.bg - color_offset, 10, u.curve)
-
         self.sound = pygame.mixer.Sound(generate_square(self.freq))
-
-        # sample_rate = 44100
-        # t = np.linspace(0, 1, int(sample_rate), False)
-        # wave = signal.square(2 * np.pi * self.freq * t)
-        # sound_array = np.ascontiguousarray(np.array([32767 * wave, 32767 * wave]).T.astype(np.int16))
-        # self.sound = pygame.sndarray.make_sound(sound_array)
 
     def play(self):
         if not self.played:
@@ -89,6 +83,8 @@ class PianoKey(fantas.Label):
             self.sound.play(loops=-1)
             my_serial.send_write_order([0x00, 0x00, self.num])
             self.played = True
+            if note_display.active:
+                note_display.play_sound(self.num)
 
     def unplay(self):
         if self.played:
@@ -105,27 +101,16 @@ class PianoKey(fantas.Label):
             self.sound.fadeout(500)
             my_serial.send_write_order([0x00, 0x01, self.num])
             self.played = False
+            if note_display.active:
+                note_display.unplay_sound(self.num)
+    
+    def set_volume(self, value):
+        self.sound.set_volume(value)
 
 class Note(fantas.IconText):
-    color_family = (
-        pygame.Color('#845ec2'),
-        pygame.Color('#d65db1'),
-        pygame.Color('#ff6f91'),
-        pygame.Color('#ff9671'),
-        pygame.Color('#ffc75f'),
-        pygame.Color('#f9f871'),
-        pygame.Color('#2c73d2'),
-        pygame.Color('#008f7a'),
-        pygame.Color('#fbeaff'),
-        pygame.Color('#b39cd0'),
-        pygame.Color('#00c9a7'),
-        pygame.Color('#c34a36'),
-        pygame.Color('#4ffbdf'),
-    )
-
     def __init__(self, pos_ref):
         random_style = {
-            'fgcolor': random.choice(self.color_family),
+            'fgcolor': random.choice(u.random_color_family),
             'size': random.randint(-10, 10) + 36,
             'rotation': random.randint(-20, 20),
         }

@@ -2,6 +2,8 @@ import fantas
 from fantas import uimanager as u
 from style import *
 
+import main_page
+
 import my_serial
 
 root = fantas.Root(FAKEWHITE)
@@ -489,8 +491,6 @@ def ani13():
 
 def check_serial():
     if my_serial.connected:
-        import main_page
-        main_page.go_back = go_back
         u.root = main_page.root
         main_page.ani1()
     else:

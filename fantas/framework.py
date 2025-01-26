@@ -20,6 +20,7 @@ class UiManager:
     harmonic_curve: fantas.FormulaCurve
     sin_curve: fantas.FormulaCurve
     rebound_curve: fantas.FormulaCurve
+    parabola1_curve: fantas.FormulaCurve
 
     def __init__(self):
         self.fps = 60
@@ -238,7 +239,7 @@ class Ui(fantas.NodeBase):
     def apply_angle(self, anchor=None):
         # 应用angle变换
         if self.angle != 0:
-            self.img = pygame.transform.rotate(self.img, self.apply_angle)
+            self.img = pygame.transform.rotate(self.img, self.angle)
             self.angle = 0
 
     def apply_size(self, anchor=None):

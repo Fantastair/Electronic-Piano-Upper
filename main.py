@@ -21,7 +21,13 @@ pygame.display.set_caption('简易电子琴上位机 -> Written By Fantastair')
 pygame.display.set_icon(u.images['icon'])
 
 import init_page
+import main_page
+
+main_page.go_back = init_page.go_back
+u.root = main_page.root
+
 init_page.start()
+# main_page.ani1()
 
 def quit():
     import sys

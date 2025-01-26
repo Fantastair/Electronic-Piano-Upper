@@ -1,7 +1,10 @@
+import pygame
 import fantas
 from fantas import uimanager as u
+
 import piano
 import virtual_key
+import note_display
 
 from style import *
 
@@ -14,10 +17,16 @@ down_board_pos_kf = fantas.RectKeyFrame(down_board, 'top', u.HEIGHT // 2, 20, u.
 
 fantas.Label((u.WIDTH, 4), bg=DEEPBLUE, topleft=(0, 0)).join(down_board)
 
-piano_keys = []
+piano_keys: list[piano.PianoKey] = []
 for i in range(8):
     piano_keys.append(piano.PianoKey(i, midtop=(113 + 82 * i, -4)))
     piano_keys[-1].join(down_board)
+
+def set_piano_volume(value):
+    for k in piano_keys:
+        k.set_volume(value)
+note_display.set_piano_volume = set_piano_volume
+note_display.set_volume(5)
 
 go_back = None
 class DownBoardWidget(fantas.Widget):
@@ -89,8 +98,10 @@ class RockerMouseWidget(fantas.MouseBase):
     def mousepress(self, pos, button):
         if button == self.mousedown == fantas.LEFTMOUSEBUTTON and self.ui.free:
             self.last_pos = pos
-            subpallets[(subpallet + 1) % len(subpallets)].rect.top = 320
+            subpallets[(subpallet + 1) % len(subpallets)].rect.midtop = (u.WIDTH // 2 - 100, 320)
             subpallets[(subpallet + 1) % len(subpallets)].join(pallet)
+            if subpallets[(subpallet + 1) % len(subpallets)] == note_display.board:
+                note_display.activate()
 
     def mouserelease(self, pos, button):
         if button == fantas.LEFTMOUSEBUTTON and self.last_pos is not None:
@@ -126,7 +137,7 @@ rocker = Rocker()
 control_box = fantas.Label((u.WIDTH - 200, u.HEIGHT // 2 - 80), 8, FAKEWHITE, DEEPBLUE, radius={'border_radius': 32}, topleft=(40, 40))
 control_box.join(up_board)
 
-pallet = fantas.Label((u.WIDTH - 264, u.HEIGHT - 160), topleft=(32, 0))
+pallet = fantas.Label((u.WIDTH - 200, u.HEIGHT - 160), topleft=(0, 0))
 pallet.join(control_box)
 
 pallet_pos_up_kf = fantas.RectKeyFrame(pallet, 'centery', 0, 40, u.rebound_curve)
@@ -135,6 +146,8 @@ pallet_pos_down_kf = fantas.RectKeyFrame(pallet, 'top', 0, 40, u.harmonic_curve)
 def after_up():
     global subpallet
     subpallets[subpallet].leave()
+    if subpallets[subpallet] == note_display.board:
+        note_display.activate()
     subpallet = (subpallet + 1) % len(subpallets)
     subpallets[subpallet].rect.top = 0
     pallet.rect.top = 0
@@ -143,27 +156,46 @@ pallet_pos_up_kf.bind_endupwith(after_up)
 
 def after_down():
     subpallets[(subpallet + 1) % len(subpallets)].leave()
+    if subpallets[(subpallet + 1) % len(subpallets)] == note_display.board:
+        note_display.activate()
 pallet_pos_down_kf.bind_endupwith(after_down)
 
-fantas.Label((u.WIDTH - 300, 8), bg=LIGHTGRAY, radius={'border_radius': 4}, center=(u.WIDTH // 2 - 132, u.HEIGHT // 2 - 80)).join(pallet)
-fantas.Label((u.WIDTH - 300, 8), bg=LIGHTGRAY, radius={'border_radius': 4}, midbottom=(u.WIDTH // 2 - 132, u.HEIGHT - 160)).join(pallet)
+s = pygame.Surface((64, 64), flags=pygame.SRCALPHA)
+s.fill(LIGHTBLUE)
+s_ = pygame.Surface((64, 64), flags=pygame.SRCALPHA)
+pygame.draw.circle(s_, BLACK, (32, 32), 30)
+s.blit(s_, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
+pygame.draw.circle(s, DEEPBLUE, (32, 32), 32, 8)
+
+s = (
+    s.subsurface((0, 0, 32, 32)),
+    s.subsurface((0, 32, 32, 32)),
+    s.subsurface((32, 32, 32, 32)),
+    s.subsurface((32, 0, 32, 32)),
+)
+fantas.Ui(s[0], topleft=(0, 0)).join(control_box)
+fantas.Ui(s[1], bottomleft=(0, u.HEIGHT // 2 - 80)).join(control_box)
+fantas.Ui(s[2], bottomright=(u.WIDTH - 200, u.HEIGHT // 2 - 80)).join(control_box)
+fantas.Ui(s[3], topright=(u.WIDTH - 200, 0)).join(control_box)
+del s, s_
+fantas.Label((u.WIDTH - 300, 8), bg=LIGHTGRAY, radius={'border_radius': 4}, center=(u.WIDTH // 2 - 100, u.HEIGHT // 2 - 80)).join(pallet)
+fantas.Label((u.WIDTH - 300, 8), bg=LIGHTGRAY, radius={'border_radius': 4}, midbottom=(u.WIDTH // 2 - 100, u.HEIGHT - 160)).join(pallet)
 fantas.Label((u.WIDTH - 264, 8), bg=DEEPBLUE, midtop=(u.WIDTH // 2 - 100, 0)).join(control_box)
 fantas.Label((u.WIDTH - 264, 8), bg=DEEPBLUE, midbottom=(u.WIDTH // 2 - 100, u.HEIGHT // 2 - 80)).join(control_box)
 
 virtual_button_box = fantas.fantas.Label((u.WIDTH - 264, u.HEIGHT // 2 - 80))
-# note_display_box = fantas.fantas.Label((u.WIDTH - 264, u.HEIGHT // 2 - 80))
 
 subpallets = [
-    # note_display_box,
+    note_display.board,
     virtual_button_box,
     fantas.fantas.Label((u.WIDTH - 264, u.HEIGHT // 2 - 80)),
 ]
 
 subpallet = 0
 
-subpallets[subpallet].rect.topleft = (0, 0)
-subpallets[subpallet].join(pallet)
-subpallets[(subpallet + 1) % len(subpallets)].rect.topleft = (0, 320)
+subpallets[0].rect.midtop = (u.WIDTH // 2 - 100, 0)
+subpallets[0].join(pallet)
+subpallets[1].rect.midtop = (u.WIDTH // 2 - 100, 320)
 
 fantas.Text('简易电子琴 - 上位机', u.fonts['deyi'], about_big_text_style, midleft=(0, 40)).join(subpallets[-1])
 fantas.Text('2025 山东大学寒假 STM32 系统设计大赛小组作品', u.fonts['deyi'], about_middle_text_style, midleft=(0, 82)).join(subpallets[-1])
@@ -179,9 +211,9 @@ def ani2(kf, ui):
     kf.launch('continue')
 a.bind(ani2, k, i)
 a.apply_event()
-
-fantas.Text('版本号：V0.7.2', u.fonts['deyi'], about_middle_text_style, midleft=(0, 152)).join(subpallets[-1])
-fantas.Text('适用下位机固件版本：V0.5', u.fonts['deyi'], about_middle_text_style, midleft=(0, 180)).join(subpallets[-1])
+del i, k, a
+fantas.Text('版本号：V0.8', u.fonts['deyi'], about_middle_text_style, midleft=(0, 152)).join(subpallets[-1])
+fantas.Text('适用下位机固件版本：V0.5 及以上', u.fonts['deyi'], about_middle_text_style, midleft=(0, 180)).join(subpallets[-1])
 
 fantas.Text('程序语言：python 3.12.7', u.fonts['deyi'], about_middle_text_style, midleft=(0, 216)).join(subpallets[-1])
 fantas.Text('开源协议：MIT license', u.fonts['deyi'], about_middle_text_style, midleft=(0, 244)).join(subpallets[-1])
@@ -191,9 +223,9 @@ fantas.Text('pyserial', u.fonts['deyi'], about_middle_text_style, midleft=(320, 
 fantas.Text('2.6.1', u.fonts['deyi'], about_middle_text_style, midright=(450, 180)).join(subpallets[-1])
 fantas.Text('3.5', u.fonts['deyi'], about_middle_text_style, midright=(450, 204)).join(subpallets[-1])
 
-fantas.WebURL('Github - 源代码仓库', 'https://github.com/Fantastair/Electronic-Piano-Upper', u.fonts['deyi'], about_small_text_style, midleft=(24, 296)).join(subpallets[-1])
-fantas.WebURL('Win64位 - 稳定版发布', '#', u.fonts['deyi'], about_small_text_style, midleft=(196, 296)).join(subpallets[-1])
-fantas.WebURL('Github - 下位机固件', 'https://github.com/Fantastair/Simple-Electronic-Keyboard', u.fonts['deyi'], about_small_text_style, midleft=(384, 296)).join(subpallets[-1])
+fantas.WebURL('Github - 源代码仓库', r'https://github.com/Fantastair/Electronic-Piano-Upper', u.fonts['deyi'], about_small_text_style, midleft=(24, 296)).join(subpallets[-1])
+fantas.WebURL('Win64位 - 稳定版发布', r'https://objects.githubusercontent.com/github-production-release-asset-2e65be/919078079/2a4a848e-aa34-4dad-af75-db1e47aa173b?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=releaseassetproduction%2F20250126%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250126T084807Z&X-Amz-Expires=300&X-Amz-Signature=e7da29baf92e79d3fc70c8eeedf2bb1b851769205ce864238b0eba6671b3674e&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3DWin64_V0.7.2_Portable.7z&response-content-type=application%2Foctet-stream', u.fonts['deyi'], about_small_text_style, midleft=(196, 296)).join(subpallets[-1])
+fantas.WebURL('Github - 下位机固件', r'https://github.com/Fantastair/Simple-Electronic-Keyboard', u.fonts['deyi'], about_small_text_style, midleft=(384, 296)).join(subpallets[-1])
 
 fantas.Text('虚拟按键', u.fonts['shuhei'], vb_tip_text_style, center=(267, 48)).join(virtual_button_box)
 
@@ -210,3 +242,5 @@ virtualkeys = [
 for k in virtualkeys:
     k.join(virtual_button_box)
 virtual_key.info_box.join(virtual_button_box)
+
+
