@@ -180,7 +180,7 @@ def ani2(kf, ui):
 a.bind(ani2, k, i)
 a.apply_event()
 
-fantas.Text('版本号：V0.7.1', u.fonts['deyi'], about_middle_text_style, midleft=(0, 152)).join(subpallets[-1])
+fantas.Text('版本号：V0.7.2', u.fonts['deyi'], about_middle_text_style, midleft=(0, 152)).join(subpallets[-1])
 fantas.Text('适用下位机固件版本：V0.5', u.fonts['deyi'], about_middle_text_style, midleft=(0, 180)).join(subpallets[-1])
 
 fantas.Text('程序语言：python 3.12.7', u.fonts['deyi'], about_middle_text_style, midleft=(0, 216)).join(subpallets[-1])
@@ -188,12 +188,8 @@ fantas.Text('开源协议：MIT license', u.fonts['deyi'], about_middle_text_sty
 fantas.Text('--- 第三方库 ---', u.fonts['deyi'], about_middle_text_style, midleft=(320, 152)).join(subpallets[-1])
 fantas.Text('pygame', u.fonts['deyi'], about_middle_text_style, midleft=(320, 180)).join(subpallets[-1])
 fantas.Text('pyserial', u.fonts['deyi'], about_middle_text_style, midleft=(320, 204)).join(subpallets[-1])
-fantas.Text('numpy', u.fonts['deyi'], about_middle_text_style, midleft=(320, 228)).join(subpallets[-1])
-fantas.Text('scipy', u.fonts['deyi'], about_middle_text_style, midleft=(320, 252)).join(subpallets[-1])
 fantas.Text('2.6.1', u.fonts['deyi'], about_middle_text_style, midright=(450, 180)).join(subpallets[-1])
 fantas.Text('3.5', u.fonts['deyi'], about_middle_text_style, midright=(450, 204)).join(subpallets[-1])
-fantas.Text('2.2.2', u.fonts['deyi'], about_middle_text_style, midright=(450, 228)).join(subpallets[-1])
-fantas.Text('1.15.1', u.fonts['deyi'], about_middle_text_style, midright=(450, 252)).join(subpallets[-1])
 
 fantas.WebURL('Github - 源代码仓库', 'https://github.com/Fantastair/Electronic-Piano-Upper', u.fonts['deyi'], about_small_text_style, midleft=(24, 296)).join(subpallets[-1])
 fantas.WebURL('Win64位 - 稳定版发布', '#', u.fonts['deyi'], about_small_text_style, midleft=(196, 296)).join(subpallets[-1])
