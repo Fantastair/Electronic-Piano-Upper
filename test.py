@@ -1,1 +1,6 @@
-
+print(int(3.3))
+print(int(3.4))
+print(int(3.5))
+print(int(3.6))
+print(int(3.7))
+print(int(3.8))

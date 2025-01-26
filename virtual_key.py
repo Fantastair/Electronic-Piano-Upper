@@ -92,5 +92,3 @@ def show_info(key: VirtualKey = None):
     else:
         itl_pos_kf.value = key.visual_pos
     itl_pos_kf.launch('continue')
-
-# fantas.Label((200, 4), bg=DEEPBLUE, )

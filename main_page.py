@@ -151,8 +151,10 @@ fantas.Label((u.WIDTH - 264, 8), bg=DEEPBLUE, midtop=(u.WIDTH // 2 - 100, 0)).jo
 fantas.Label((u.WIDTH - 264, 8), bg=DEEPBLUE, midbottom=(u.WIDTH // 2 - 100, u.HEIGHT // 2 - 80)).join(control_box)
 
 virtual_button_box = fantas.fantas.Label((u.WIDTH - 264, u.HEIGHT // 2 - 80))
+# note_display_box = fantas.fantas.Label((u.WIDTH - 264, u.HEIGHT // 2 - 80))
 
 subpallets = [
+    # note_display_box,
     virtual_button_box,
     fantas.fantas.Label((u.WIDTH - 264, u.HEIGHT // 2 - 80)),
 ]

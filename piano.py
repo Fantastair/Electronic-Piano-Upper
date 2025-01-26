@@ -5,8 +5,9 @@ from style import *
 import my_serial
 
 import random
-import numpy as np
-from scipy import signal
+import math
+# import numpy as np
+# from scipy import signal
 
 class PianoKeyMouseWidget(fantas.MouseBase):
     def __init__(self, ui):
@@ -71,12 +72,13 @@ class PianoKey(fantas.Label):
         self.size_short_kf = fantas.LabelKeyFrame(self, 'size', (self.rect.w, self.rect.h), 10, u.harmonic_curve)
         self.color_kf = fantas.LabelKeyFrame(self, 'bg', self.bg - color_offset, 10, u.curve)
 
-        sample_rate = 44100
-        t = np.linspace(0, 1, int(sample_rate), False)
-        # wave = np.sin(2 * np.pi * self.freq * t)
-        wave = signal.square(2 * np.pi * self.freq * t)
-        sound_array = np.ascontiguousarray(np.array([32767 * wave, 32767 * wave]).T.astype(np.int16))
-        self.sound = pygame.sndarray.make_sound(sound_array)
+        self.sound = pygame.mixer.Sound(generate_square(self.freq))
+
+        # sample_rate = 44100
+        # t = np.linspace(0, 1, int(sample_rate), False)
+        # wave = signal.square(2 * np.pi * self.freq * t)
+        # sound_array = np.ascontiguousarray(np.array([32767 * wave, 32767 * wave]).T.astype(np.int16))
+        # self.sound = pygame.sndarray.make_sound(sound_array)
 
     def play(self):
         if not self.played:
@@ -136,3 +138,22 @@ class Note(fantas.IconText):
         random_pos_kf = fantas.RectKeyFrame(self, 'centery', random_center[1] - random.randint(30, 60), random_frame, u.faster_curve)
         random_alpha_kf.launch()
         random_pos_kf.launch()
+
+def generate_square(freq):
+    sample_rate = 44100
+    l = sample_rate // freq
+    if l % 2 != 0:
+        l -= 1
+    result = [b'\xff\x7f' * l, b'\x01\x80' * l] * freq
+    l, s = freq * 2, sample_rate - len(b''.join(result)) // 4
+    temp = [0] * l
+    interval = l // s
+    remainder = l % s
+    pos = 0
+    for i in range(s):
+        temp[pos] = 1
+        pos += interval + (1 if i < remainder else 0)
+    for i in range(l):
+        if temp[i] == 1:
+            result[i] += result[i][:4]
+    return b''.join(result)
