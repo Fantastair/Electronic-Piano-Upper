@@ -4,11 +4,11 @@ import fantas
 from fantas import uimanager as u
 
 import note_display
+import my_serial
 
 from style import *
 
-import my_serial
-
+import array
 
 class PianoKeyMouseWidget(fantas.MouseBase):
     def __init__(self, ui):
@@ -74,7 +74,7 @@ class PianoKey(fantas.Label):
         self.size_long_kf = fantas.LabelKeyFrame(self, 'size', (self.rect.w, self.rect.h + 12), 10, u.harmonic_curve)
         self.size_short_kf = fantas.LabelKeyFrame(self, 'size', (self.rect.w, self.rect.h), 10, u.harmonic_curve)
         self.color_kf = fantas.LabelKeyFrame(self, 'bg', self.bg - color_offset, 10, u.curve)
-        self.sound = pygame.mixer.Sound(generate_square(self.freq))
+        self.sound = generate_square_sound(self.freq)
 
     def play(self):
         if not self.played:
@@ -126,21 +126,13 @@ class Note(fantas.IconText):
         random_alpha_kf.launch()
         random_pos_kf.launch()
 
-def generate_square(freq):
+def generate_square_sound(freq):
     sample_rate = 44100
-    l = sample_rate // freq
-    if l % 2 != 0:
-        l -= 1
-    result = [b'\xff\x7f' * l, b'\x01\x80' * l] * freq
-    l, s = freq * 2, sample_rate - len(b''.join(result)) // 4
-    temp = [0] * l
-    interval = l // s
-    remainder = l % s
-    pos = 0
-    for i in range(s):
-        temp[pos] = 1
-        pos += interval + (1 if i < remainder else 0)
-    for i in range(l):
-        if temp[i] == 1:
-            result[i] += result[i][:4]
-    return b''.join(result)
+    period_samples = int(sample_rate / freq)
+    num_samples = (sample_rate // period_samples) * period_samples
+    square_wave = array.array('h')
+    for i in range(num_samples):
+        value = 32767 if (i % period_samples) < (period_samples // 2) else -32767
+        square_wave.append(value)
+        square_wave.append(value)
+    return pygame.mixer.Sound(buffer=square_wave)
