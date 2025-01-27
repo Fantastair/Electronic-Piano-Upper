@@ -25,7 +25,8 @@ class PianoKeyMouseWidget(fantas.MouseBase):
     def mousepress(self, pos, button):
         if button == 1 and self.mouseon:
             self.ui.play()
-            Note(pygame.mouse.get_pos())
+            if u.get_volume() > 0:
+                Note(pygame.mouse.get_pos())
     
     def mouserelease(self, pos, button):
         if button == self.mousedown == 1:
@@ -35,7 +36,8 @@ class PianoKeyKeyBoardWidget(fantas.KeyboardBase):
     def keyboardpress(self, key, shortcut):
         if key == self.ui.key:
             self.ui.play()
-            Note((self.ui.rect.centerx + self.ui.father.rect.left, self.ui.rect.centery + self.ui.father.rect.top))
+            if u.get_volume() > 0:
+                Note((self.ui.rect.centerx + self.ui.father.rect.left, self.ui.rect.centery + self.ui.father.rect.top))
 
     def keyboardrelease(self, key, shortcut):
         if key == self.ui.key:

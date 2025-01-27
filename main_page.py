@@ -212,7 +212,7 @@ def ani2(kf, ui):
 a.bind(ani2, k, i)
 a.apply_event()
 del i, k, a
-fantas.Text('版本号：V0.8', u.fonts['deyi'], about_middle_text_style, midleft=(0, 152)).join(subpallets[-1])
+fantas.Text('版本号：V0.8.1', u.fonts['deyi'], about_middle_text_style, midleft=(0, 152)).join(subpallets[-1])
 fantas.Text('适用下位机固件版本：V0.5 及以上', u.fonts['deyi'], about_middle_text_style, midleft=(0, 180)).join(subpallets[-1])
 
 fantas.Text('程序语言：python 3.12.7', u.fonts['deyi'], about_middle_text_style, midleft=(0, 216)).join(subpallets[-1])
@@ -224,7 +224,7 @@ fantas.Text('2.6.1', u.fonts['deyi'], about_middle_text_style, midright=(450, 18
 fantas.Text('3.5', u.fonts['deyi'], about_middle_text_style, midright=(450, 204)).join(subpallets[-1])
 
 fantas.WebURL('Github - 源代码仓库', r'https://github.com/Fantastair/Electronic-Piano-Upper', u.fonts['deyi'], about_small_text_style, midleft=(24, 296)).join(subpallets[-1])
-fantas.WebURL('Win64位 - 稳定版发布', r'https://objects.githubusercontent.com/github-production-release-asset-2e65be/919078079/2a4a848e-aa34-4dad-af75-db1e47aa173b?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=releaseassetproduction%2F20250126%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250126T084807Z&X-Amz-Expires=300&X-Amz-Signature=e7da29baf92e79d3fc70c8eeedf2bb1b851769205ce864238b0eba6671b3674e&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3DWin64_V0.7.2_Portable.7z&response-content-type=application%2Foctet-stream', u.fonts['deyi'], about_small_text_style, midleft=(196, 296)).join(subpallets[-1])
+fantas.WebURL('Win64 - 新版发布页', r'https://github.com/Fantastair/Electronic-Piano-Upper/releases', u.fonts['deyi'], about_small_text_style, midleft=(196, 296)).join(subpallets[-1])
 fantas.WebURL('Github - 下位机固件', r'https://github.com/Fantastair/Simple-Electronic-Keyboard', u.fonts['deyi'], about_small_text_style, midleft=(384, 296)).join(subpallets[-1])
 
 fantas.Text('虚拟按键', u.fonts['shuhei'], vb_tip_text_style, center=(267, 48)).join(virtual_button_box)
@@ -242,5 +242,3 @@ virtualkeys = [
 for k in virtualkeys:
     k.join(virtual_button_box)
 virtual_key.info_box.join(virtual_button_box)
-
-

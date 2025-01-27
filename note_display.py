@@ -13,7 +13,7 @@ active = False
 def activate():
     global active
     active = True
-    pygame.time.set_timer(u.CREATERANDOMNOTE, 500)
+    pygame.time.set_timer(u.CREATERANDOMNOTE, 400)
 activate()
 def unactivate():
     global active
@@ -31,7 +31,7 @@ fantas.Label((520, 1), bg=LIGHTGRAY, topleft=(80, 192)).join(board)
 fantas.Label((520, 1), bg=LIGHTGRAY, topleft=(80, 224)).join(board)
 fantas.Label((520, 1), bg=LIGHTGRAY, topleft=(80, 256)).join(board)
 fantas.Label((520, 1), bg=LIGHTGRAY, topleft=(80, 288)).join(board)
-fantas.Label((80, u.HEIGHT // 2 - 88), bg=WHITEGREEN, topleft=(0, 0)).join(board)
+fantas.Label((80, u.HEIGHT // 2 - 88), bg=WHITEGREEN, topleft=(0, 4)).join(board)
 fantas.Label((8, u.HEIGHT // 2 - 88), bg=DEEPBLUE, midtop=(80, 4)).join(board)
 volume_bar_box = fantas.Label((38, u.HEIGHT // 2 - 120), 4, FAKEWHITE, DEEPGREEN, {'border_radius': 4}, center=(40, u.HEIGHT // 4 - 40))
 volume_bar_box.join(board)
@@ -50,7 +50,7 @@ volume_cursor.join(board)
 vc_pos_kf = fantas.RectKeyFrame(volume_cursor, 'centery', 0, 8, u.slower_curve)
 
 def cursor_jump():
-    if not vc_pos_kf.is_launched():
+    if not vc_pos_kf.is_launched() and volume != 0:
         if vc_pos_kf.curve != u.parabola1_curve:
             vc_pos_kf.curve = u.parabola1_curve
         vc_pos_kf.value = volume_cursor.rect.centery - 20
@@ -66,11 +66,19 @@ def set_volume(value):
             vc_pos_kf.curve = u.slower_curve
         vc_pos_kf.value = volume_bar_box.rect.bottom - round(272 * volume / 5) - 6
         vc_pos_kf.launch('continue')
-        set_piano_volume(volume / 5)
+        set_piano_volume((volume / 5) ** 2)
+        if volume == 0 and active:
+            unactivate()
+        elif not active:
+            activate()
+
+def get_volume():
+    return volume
+u.get_volume = get_volume
 
 class VolumeBarBoxMouseWidget(fantas.MouseBase):
     def __init__(self, ui):
-        super().__init__(ui, 2)
+        super().__init__(ui, 3)
     
     def pos2volume(self, pos):
         return 5 - min(max(pos, 0), 280) // 56
@@ -82,6 +90,10 @@ class VolumeBarBoxMouseWidget(fantas.MouseBase):
     def mousemove(self, pos):
         if self.mousedown == fantas.LEFTMOUSEBUTTON:
             set_volume(self.pos2volume(pos[1]))
+    
+    def mousescroll(self, x, y):
+        if self.mouseon:
+            set_volume(volume + y)
     
     def handle(self, event):
         super().handle(event)
