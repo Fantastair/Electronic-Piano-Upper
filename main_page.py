@@ -147,7 +147,7 @@ def after_up():
     global subpallet
     subpallets[subpallet].leave()
     if subpallets[subpallet] == note_display.board:
-        note_display.activate()
+        note_display.unactivate()
     subpallet = (subpallet + 1) % len(subpallets)
     subpallets[subpallet].rect.top = 0
     pallet.rect.top = 0
@@ -157,7 +157,7 @@ pallet_pos_up_kf.bind_endupwith(after_up)
 def after_down():
     subpallets[(subpallet + 1) % len(subpallets)].leave()
     if subpallets[(subpallet + 1) % len(subpallets)] == note_display.board:
-        note_display.activate()
+        note_display.unactivate()
 pallet_pos_down_kf.bind_endupwith(after_down)
 
 s = pygame.Surface((64, 64), flags=pygame.SRCALPHA)
@@ -212,7 +212,7 @@ def ani2(kf, ui):
 a.bind(ani2, k, i)
 a.apply_event()
 del i, k, a
-fantas.Text('版本号：V0.8.2', u.fonts['deyi'], about_middle_text_style, midleft=(0, 152)).join(subpallets[-1])
+fantas.Text('版本号：V0.8.3', u.fonts['deyi'], about_middle_text_style, midleft=(0, 152)).join(subpallets[-1])
 fantas.Text('适用下位机固件版本：V0.5 及以上', u.fonts['deyi'], about_middle_text_style, midleft=(0, 180)).join(subpallets[-1])
 
 fantas.Text('程序语言：python 3.12.7', u.fonts['deyi'], about_middle_text_style, midleft=(0, 216)).join(subpallets[-1])

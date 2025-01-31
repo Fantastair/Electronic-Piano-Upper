@@ -78,9 +78,15 @@ class PianoKey(fantas.Label):
 
     def play(self):
         if not self.played:
+            if self.num_text_pos_up_kf.is_launched():
+                self.num_text_pos_up_kf.stop()
             self.num_text_pos_down_kf.launch('continue')
+            if self.size_short_kf.is_launched():
+                self.size_short_kf.stop()
             self.size_long_kf.launch('continue')
             if self.num >= 7:
+                if self.high_point_pos_up_kf.is_launched():
+                    self.high_point_pos_up_kf.stop()
                 self.high_point_pos_down_kf.launch('continue')
             self.sound.play(loops=-1)
             my_serial.send_write_order([0x00, 0x00, self.num])
