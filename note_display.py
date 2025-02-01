@@ -1,10 +1,10 @@
+import random
 import pygame
 import fantas
 from fantas import uimanager as u
-
+import my_serial
 from style import *
 
-import random
 
 set_piano_volume = None
 u.CREATERANDOMNOTE = pygame.event.custom_type()
@@ -67,6 +67,7 @@ def set_volume(value):
         vc_pos_kf.value = volume_bar_box.rect.bottom - round(272 * volume / 5) - 6
         vc_pos_kf.launch('continue')
         set_piano_volume((volume / 5) ** 2)
+        my_serial.send_write_order([0x01, t])
         if volume == 0 and active:
             unactivate()
         elif not active:

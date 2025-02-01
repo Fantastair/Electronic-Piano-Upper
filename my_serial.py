@@ -30,7 +30,7 @@ def send_data_package(data):
         data = package_head + [len(data)] + data + package_tail
         try:
             my_serial.write(bytes(data))
-            print_data(data, True)
+            # print_data(data, True)
             return True
         except serial.serialutil.SerialTimeoutException:
             unconnect()
@@ -47,7 +47,7 @@ def recv_data_package():
             result = list(my_serial.read(int.from_bytes(my_serial.read())))
             if (my_serial.read(2) != bytes(package_tail)):
                 return None
-            print_data(result, False)
+            # print_data(result, False)
             return result
         except serial.SerialTimeoutException:
             unconnect()

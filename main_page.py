@@ -45,9 +45,10 @@ up_board_pos_kf = fantas.RectKeyFrame(up_board, 'bottom', u.HEIGHT // 2, 20, u.h
 fantas.Label((u.WIDTH, 4), bg=DEEPBLUE, bottomleft=(0, u.HEIGHT // 2)).join(up_board)
 
 def ani1():
+    down_board.rect.top = u.HEIGHT
+    up_board.rect.bottom = 0
     down_board.join(u.root)
     up_board.join(u.root)
-
     down_board_pos_kf.launch()
     up_board_pos_kf.launch()
 
@@ -100,7 +101,7 @@ class RockerMouseWidget(fantas.MouseBase):
             self.last_pos = pos
             subpallets[(subpallet + 1) % len(subpallets)].rect.midtop = (u.WIDTH // 2 - 100, 320)
             subpallets[(subpallet + 1) % len(subpallets)].join(pallet)
-            if subpallets[(subpallet + 1) % len(subpallets)] == note_display.board:
+            if subpallets[(subpallet + 1) % len(subpallets)] == note_display.board and note_display.volume > 0:
                 note_display.activate()
 
     def mouserelease(self, pos, button):
@@ -212,7 +213,7 @@ def ani2(kf, ui):
 a.bind(ani2, k, i)
 a.apply_event()
 del i, k, a
-fantas.Text('版本号：V0.8.3', u.fonts['deyi'], about_middle_text_style, midleft=(0, 152)).join(subpallets[-1])
+fantas.Text('版本号：V0.8.5', u.fonts['deyi'], about_middle_text_style, midleft=(0, 152)).join(subpallets[-1])
 fantas.Text('适用下位机固件版本：V0.5 及以上', u.fonts['deyi'], about_middle_text_style, midleft=(0, 180)).join(subpallets[-1])
 
 fantas.Text('程序语言：python 3.12.7', u.fonts['deyi'], about_middle_text_style, midleft=(0, 216)).join(subpallets[-1])
