@@ -4,7 +4,7 @@ import fantas
 from fantas import uimanager as u
 import my_serial
 from style import *
-
+import sync
 
 set_piano_volume = None
 u.CREATERANDOMNOTE = pygame.event.custom_type()
@@ -57,7 +57,7 @@ def cursor_jump():
         vc_pos_kf.launch('continue')
 
 volume = 0
-def set_volume(value):
+def set_volume(value, from_sync=False):
     global volume
     t = min(max(value, 0), 5)
     if volume != t:
@@ -67,11 +67,16 @@ def set_volume(value):
         vc_pos_kf.value = volume_bar_box.rect.bottom - round(272 * volume / 5) - 6
         vc_pos_kf.launch('continue')
         set_piano_volume((volume / 5) ** 2)
-        my_serial.send_write_order([0x01, t])
+        if not from_sync:
+            my_serial.send_write_order([0x01, t])
         if volume == 0 and active:
             unactivate()
         elif not active:
             activate()
+
+def sync_volume(value):
+    set_volume(value[0], True)
+sync.SyncTrigger('volume', sync_volume)
 
 def get_volume():
     return volume

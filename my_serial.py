@@ -1,6 +1,7 @@
 import time
 import serial
 import serial.tools.list_ports_windows
+from pathlib import Path
 import threading
 lock = threading.RLock()
 
@@ -11,7 +12,14 @@ u.CONNECTEDEVENT = pygame.event.custom_type()
 u.UNCONNECTEVENT = pygame.event.custom_type()
 
 def iter_port():
-    return [i.name for i in serial.tools.list_ports_windows.iterate_comports()]
+    l = [i.name for i in serial.tools.list_ports_windows.iterate_comports()]
+    if Path('porttemp').exists():
+        with Path('porttemp').open('r') as f:
+            temp = f.read()
+        if temp in l:
+            l.remove(temp)
+            l.insert(0, temp)
+    return l
 
 
 package_head = [0xff, 0xaa]
@@ -94,6 +102,8 @@ def serial_thread():
                     if flag:
                         print('握手成功，成功连接到下位机')
                         connect()
+                        with Path('porttemp').open('w') as f:
+                            f.write(i)
                         break
                     else:
                         print('握手失败，此连接不是下位机')

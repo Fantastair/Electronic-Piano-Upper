@@ -103,14 +103,17 @@ class CircleTrigger(Trigger):
     def tick(self):
         # 进入下一帧
         self.currentframe += 1
-        if self.currentframe == self.totalframe+1:
-            if self.circle_time != 0:
-                if self.circle_time != -1:
-                    self.circle_time -= 1
+        if self.currentframe == self.totalframe + 1:
+            if self.circle_time == 0:
                 u.keyframe_queue.remove(self)
+            elif self.circle_time == -1:
+                self.currentframe = 0
+            elif self.circle_time > 0:
+                self.circle_time -= 1
+                self.currentframe = 0
             if self.endupwith is not None:
                 self.endupwith(*self.args, **self.kwargs)
-
+    
 class AttrKeyFrame(KeyFrame):
     # 属性赋值型关键帧
     # 可以自动获取起始值

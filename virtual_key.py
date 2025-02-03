@@ -39,19 +39,21 @@ class VirtualKey(fantas.Label):
             i.join(node)
         super().join(node)
     
-    def release(self):
+    def release(self, from_sync=False):
         self.pushed = False
         u.sounds['virtual_button'].play()
-        my_serial.send_write_order([0x00, 0x01, self.num])
+        if not from_sync:
+            my_serial.send_write_order([0x00, 0x01, self.num])
         self.info_size_kf.value = 28
         self.info_color_kf.value = DEEPBLUE
         self.info_size_kf.launch('continue')
         self.info_color_kf.launch('continue')
     
-    def push(self):
+    def push(self, from_sync=False):
         self.pushed = True
         u.sounds['virtual_button'].play()
-        my_serial.send_write_order([0x00, 0x00, self.num])
+        if not from_sync:
+            my_serial.send_write_order([0x00, 0x00, self.num])
         self.info_size_kf.value = 40
         self.info_color_kf.value = DARKRED
         self.info_size_kf.launch('continue')

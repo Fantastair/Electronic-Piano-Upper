@@ -5,6 +5,7 @@ from fantas import uimanager as u
 import piano
 import virtual_key
 import note_display
+import sync
 
 from style import *
 
@@ -207,13 +208,14 @@ i.apply_size()
 i.join(subpallets[-1])
 k = fantas.UiKeyFrame(i, 'angle', 0, 60, u.slower_curve)
 a = fantas.AnyButton(i)
+
 def ani2(kf, ui):
     ui.angle -= 360
     kf.launch('continue')
 a.bind(ani2, k, i)
 a.apply_event()
 del i, k, a
-fantas.Text('版本号：V0.8.5', u.fonts['deyi'], about_middle_text_style, midleft=(0, 152)).join(subpallets[-1])
+fantas.Text('版本号：V0.9', u.fonts['deyi'], about_middle_text_style, midleft=(0, 152)).join(subpallets[-1])
 fantas.Text('适用下位机固件版本：V0.5 及以上', u.fonts['deyi'], about_middle_text_style, midleft=(0, 180)).join(subpallets[-1])
 
 fantas.Text('程序语言：python 3.12.7', u.fonts['deyi'], about_middle_text_style, midleft=(0, 216)).join(subpallets[-1])
@@ -243,3 +245,16 @@ virtualkeys = [
 for k in virtualkeys:
     k.join(virtual_button_box)
 virtual_key.info_box.join(virtual_button_box)
+
+
+last_keyboard_input = 0
+def sync_keyboard(value):
+    value = value[0] << 8 | value[1]
+    global last_keyboard_input
+    for i in range(8):
+        if (value >> 8) & 1 << (7 - i) and not (last_keyboard_input >> 8) & 1 << (7 - i) and not piano_keys[i].played:
+            piano_keys[i].play(True)
+        elif not (value >> 8) & 1 << (7 - i) and (last_keyboard_input >> 8) & 1 << (7 - i) and piano_keys[i].played:
+            piano_keys[i].unplay(True)
+    last_keyboard_input = value
+sync.SyncTrigger('keyboard', sync_keyboard)

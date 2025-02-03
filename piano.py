@@ -76,7 +76,7 @@ class PianoKey(fantas.Label):
         self.color_kf = fantas.LabelKeyFrame(self, 'bg', self.bg - color_offset, 10, u.curve)
         self.sound = generate_square_sound(self.freq)
 
-    def play(self):
+    def play(self, from_sync=False):
         if not self.played:
             if self.num_text_pos_up_kf.is_launched():
                 self.num_text_pos_up_kf.stop()
@@ -89,12 +89,13 @@ class PianoKey(fantas.Label):
                     self.high_point_pos_up_kf.stop()
                 self.high_point_pos_down_kf.launch('continue')
             self.sound.play(loops=-1)
-            my_serial.send_write_order([0x00, 0x00, self.num])
+            if not from_sync:
+                my_serial.send_write_order([0x00, 0x00, self.num])
             self.played = True
             if note_display.active:
                 note_display.play_sound(self.num)
 
-    def unplay(self):
+    def unplay(self, from_sync=False):
         if self.played:
             if self.num_text_pos_down_kf.is_launched():
                 self.num_text_pos_down_kf.stop()
@@ -107,7 +108,8 @@ class PianoKey(fantas.Label):
                     self.high_point_pos_down_kf.stop()
                 self.high_point_pos_up_kf.launch('continue')
             self.sound.fadeout(500)
-            my_serial.send_write_order([0x00, 0x01, self.num])
+            if not from_sync:
+                my_serial.send_write_order([0x00, 0x01, self.num])
             self.played = False
             if note_display.active:
                 note_display.unplay_sound(self.num)
