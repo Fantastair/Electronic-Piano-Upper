@@ -11,14 +11,15 @@ import pygame
 u.CONNECTEDEVENT = pygame.event.custom_type()
 u.UNCONNECTEVENT = pygame.event.custom_type()
 
+if Path('porttemp').exists():
+    with Path('porttemp').open('r') as f:
+        last_port = f.read()
+
 def iter_port():
     l = [i.name for i in serial.tools.list_ports_windows.iterate_comports()]
-    if Path('porttemp').exists():
-        with Path('porttemp').open('r') as f:
-            temp = f.read()
-        if temp in l:
-            l.remove(temp)
-            l.insert(0, temp)
+    if last_port in l:
+        l.remove(last_port)
+        l.insert(0, last_port)
     return l
 
 
@@ -80,11 +81,11 @@ connected = False
 running = True
 send_data_queue = []    # ('w'/'r'，数据本身，[读指令给一个函数接收返回值])
 def serial_thread():
-    global connected
+    global connected, last_port
 
     while running:
         while not connected:
-            '''
+            # '''
             # time.sleep(6)
             connected = True
             '''
@@ -102,8 +103,10 @@ def serial_thread():
                     if flag:
                         print('握手成功，成功连接到下位机')
                         connect()
-                        with Path('porttemp').open('w') as f:
-                            f.write(i)
+                        if i != last_port:
+                            with Path('porttemp').open('w') as f:
+                                f.write(i)
+                            last_port = i
                         break
                     else:
                         print('握手失败，此连接不是下位机')

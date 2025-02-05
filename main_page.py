@@ -5,6 +5,7 @@ from fantas import uimanager as u
 import piano
 import virtual_key
 import note_display
+import player
 import sync
 
 from style import *
@@ -27,7 +28,7 @@ def set_piano_volume(value):
     for k in piano_keys:
         k.set_volume(value)
 note_display.set_piano_volume = set_piano_volume
-note_display.set_volume(5)
+# note_display.set_volume(5)
 
 go_back = None
 class DownBoardWidget(fantas.Widget):
@@ -52,6 +53,7 @@ def ani1():
     up_board.join(u.root)
     down_board_pos_kf.launch()
     up_board_pos_kf.launch()
+    fantas.Trigger(note_display.set_volume, 5).launch(10)
 
 fantas.Label((48, u.HEIGHT // 2 - 160), 8, DEEPGRAY, DEEPBLUE, {'border_radius': 24}, center=(u.WIDTH - 80, u.HEIGHT // 4)).join(up_board)
 
@@ -104,6 +106,8 @@ class RockerMouseWidget(fantas.MouseBase):
             subpallets[(subpallet + 1) % len(subpallets)].join(pallet)
             if subpallets[(subpallet + 1) % len(subpallets)] == note_display.board and note_display.volume > 0:
                 note_display.activate()
+            if player.play_button.played:
+                player.play_button.pause()
 
     def mouserelease(self, pos, button):
         if button == fantas.LEFTMOUSEBUTTON and self.last_pos is not None:
@@ -160,6 +164,9 @@ def after_down():
     subpallets[(subpallet + 1) % len(subpallets)].leave()
     if subpallets[(subpallet + 1) % len(subpallets)] == note_display.board:
         note_display.unactivate()
+    if player.play_button.played:
+        player.play_button.pause()
+
 pallet_pos_down_kf.bind_endupwith(after_down)
 
 s = pygame.Surface((64, 64), flags=pygame.SRCALPHA)
@@ -188,6 +195,7 @@ fantas.Label((u.WIDTH - 264, 8), bg=DEEPBLUE, midbottom=(u.WIDTH // 2 - 100, u.H
 virtual_button_box = fantas.fantas.Label((u.WIDTH - 264, u.HEIGHT // 2 - 80))
 
 subpallets = [
+    player.board,
     note_display.board,
     virtual_button_box,
     fantas.fantas.Label((u.WIDTH - 264, u.HEIGHT // 2 - 80)),
@@ -215,7 +223,7 @@ def ani2(kf, ui):
 a.bind(ani2, k, i)
 a.apply_event()
 del i, k, a
-fantas.Text('版本号：V0.9', u.fonts['deyi'], about_middle_text_style, midleft=(0, 152)).join(subpallets[-1])
+fantas.Text('版本号：V0.9.3', u.fonts['deyi'], about_middle_text_style, midleft=(0, 152)).join(subpallets[-1])
 fantas.Text('适用下位机固件版本：V0.5 及以上', u.fonts['deyi'], about_middle_text_style, midleft=(0, 180)).join(subpallets[-1])
 
 fantas.Text('程序语言：python 3.12.7', u.fonts['deyi'], about_middle_text_style, midleft=(0, 216)).join(subpallets[-1])

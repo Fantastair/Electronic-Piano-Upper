@@ -128,7 +128,7 @@ class RandomNote(fantas.IconText):
             'rotation': random.randint(-30, 30),
         }
         random_pos = (u.WIDTH - 216, random.randint(20, 300))
-        super().__init__(chr(random.randint(0xe600, 0xe610)), u.fonts['iconfont'], random_style, midleft=random_pos)
+        super().__init__(chr(random.randint(0xe600, 0xe60a)), u.fonts['iconfont'], random_style, midleft=random_pos)
         kf = fantas.RectKeyFrame(self, 'right', 80, random.randint(120, 300), u.curve)
         kf.launch()
         kf.bind_endupwith(self.leave)

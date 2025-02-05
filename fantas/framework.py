@@ -317,24 +317,28 @@ class Ui(fantas.NodeBase):
                         self.temp_img = pygame.transform.rotate(pygame.transform.smoothscale(self.img, self.size), self.angle)
                     else:
                         self.temp_img = pygame.transform.smoothscale(self.img, self.size)
-                else:
+                elif angle:
                     self.temp_img = pygame.transform.rotate(self.img, self.angle)
+                else:
+                    self.temp_img = self.img.copy()
                 if alpha:
                     self.temp_img.set_alpha(self.alpha)
                 if not size and not angle and not alpha:
                     self.temp_img = self.img
             else:
+                if not size and not angle and not alpha:
+                    self.temp_img = self.img.copy()
+                for ui in self.kidgroup:
+                    ui.render()
                 if size:
                     if angle:
                         self.temp_img = pygame.transform.rotate(pygame.transform.smoothscale(self.img, self.size), self.angle)
                     else:
                         self.temp_img = pygame.transform.smoothscale(self.img, self.size)
+                elif angle:
+                    self.temp_img = pygame.transform.rotate(self.img, self.angle)
                 if alpha:
                     self.temp_img.set_alpha(self.alpha)
-                if not size and not angle and not alpha:
-                    self.temp_img = self.img.copy()
-                for ui in self.kidgroup:
-                    ui.render()
             self.update_rect()
             self.father.temp_img.blit(self.temp_img, self.rect)
         self.update_flag = False

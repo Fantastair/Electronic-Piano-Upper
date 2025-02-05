@@ -13,6 +13,7 @@ class KeyFrame:
     def __init__(self, curve=u.curve):
         self.curve = curve
         self.endupwith = None
+        self.currentframe = 0
 
     def bind_endupwith(self, func, *args, **kwargs):
         # 绑定结束动作
@@ -143,7 +144,8 @@ class AttrKeyFrame(KeyFrame):
                 self.set_keyframe(start, self.value, self.totalframe, self.absolute)
                 self.currentframe = 0
         else:
-            self.currentframe = 0
+            if flag != 'recover':
+                self.currentframe = 0
             if start is None:
                 start = getattr(self.subject, self.attr)
             self.set_keyframe(start, self.value, self.totalframe, self.absolute)

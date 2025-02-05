@@ -25,6 +25,7 @@ def get_text(size, color):
     return {'size': size, 'fgcolor': color}
 
 BLACK = get_color('000000')
+WHITE = get_color('ffffff')
 FAKEWHITE = get_color('e3e3e3')
 DEEPBLUE = get_color('4a466e')
 LIGHTBROWN = get_color('e6c28e')
@@ -54,5 +55,6 @@ vb_info_text_style = get_text(28, DEEPBLUE)
 vb_cursor_style = get_text(72, BLACK)
 vb_cursor_style['rotation'] = 90
 note_text_style = get_text(24, DEEPBLUE)
+record_note_text_style = get_text(144, FAKEWHITE - color_offset)
 
 del pygame, u
