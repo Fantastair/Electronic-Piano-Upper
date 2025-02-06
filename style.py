@@ -56,5 +56,18 @@ vb_cursor_style = get_text(72, BLACK)
 vb_cursor_style['rotation'] = 90
 note_text_style = get_text(24, DEEPBLUE)
 record_note_text_style = get_text(144, FAKEWHITE - color_offset)
+music_name_style = get_text(36, DEEPBLUE)
+memory_text_style = get_text(42, DEEPBLUE)
+memory_button_color = {
+    'origin_bg': FAKEWHITE,
+    'hover_bg': FAKEWHITE + color_offset,
+    'press_bg': FAKEWHITE - color_offset,
+    'origin_bd': 2,
+    'hover_bd': 4,
+    'press_bd': 4,
+    'origin_sc': DEEPBLUE,
+    'hover_sc': DEEPBLUE,
+    'press_sc': DEEPBLUE,
+}
 
 del pygame, u

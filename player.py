@@ -1,7 +1,7 @@
 import pygame.freetype
 import fantas
 from fantas import uimanager as u
-
+import my_serial
 from style import *
 
 board = fantas.fantas.Label((u.WIDTH - 216, u.HEIGHT // 2 - 80))
@@ -360,6 +360,15 @@ class SpeedButton(fantas.IconText):
         self.speed = (self.speed + 1) % 3
         self.speed_text.text = self.speed_texts[self.speed]
         self.speed_text.update_img()
+        if self.speed == 2:
+            record_angle_kf.currentframe = round(180 * (record_angle_kf.currentframe / record_angle_kf.totalframe))
+            record_angle_kf.totalframe = 180
+        elif self.speed == 1:
+            record_angle_kf.currentframe = round(360 * (record_angle_kf.currentframe / record_angle_kf.totalframe))
+            record_angle_kf.totalframe = 360
+        else:
+            record_angle_kf.currentframe = round(720 * (record_angle_kf.currentframe / record_angle_kf.totalframe))
+            record_angle_kf.totalframe = 720
 
 
 class ModeButtonMouseWidget(fantas.MouseBase):
@@ -492,3 +501,6 @@ mode_button.join(board)
 
 process_bar = ProcessBar(center=(420, 288))
 process_bar.join(board)
+
+music_name = fantas.Text('Music', u.fonts['deyi'], music_name_style, center=(446, 120))
+music_name.join(board)

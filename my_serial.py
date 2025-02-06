@@ -85,7 +85,7 @@ def serial_thread():
 
     while running:
         while not connected:
-            # '''
+            '''
             # time.sleep(6)
             connected = True
             '''

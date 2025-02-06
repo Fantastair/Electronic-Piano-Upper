@@ -1,5 +1,8 @@
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = ''
+import tkinter
+root = tkinter.Tk()
+root.withdraw()
 import pygame
 from pathlib import Path
 import fantas
@@ -22,12 +25,13 @@ import main_page
 main_page.go_back = init_page.go_back
 u.root = main_page.root
 
-# init_page.start()
-main_page.ani1()
+init_page.start()
+# main_page.ani1()
 
 def quit():
     import sys
     pygame.quit()
+    root.destroy()
     my_serial.close_serial()
     sys.exit()
 

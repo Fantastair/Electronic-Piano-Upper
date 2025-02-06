@@ -1,12 +1,13 @@
 import pygame
 import fantas
 from fantas import uimanager as u
+import sync
 
 import piano
 import virtual_key
 import note_display
 import player
-import sync
+import flash_manager
 
 from style import *
 
@@ -195,6 +196,7 @@ fantas.Label((u.WIDTH - 264, 8), bg=DEEPBLUE, midbottom=(u.WIDTH // 2 - 100, u.H
 virtual_button_box = fantas.fantas.Label((u.WIDTH - 264, u.HEIGHT // 2 - 80))
 
 subpallets = [
+    flash_manager.board,
     player.board,
     note_display.board,
     virtual_button_box,
@@ -223,7 +225,7 @@ def ani2(kf, ui):
 a.bind(ani2, k, i)
 a.apply_event()
 del i, k, a
-fantas.Text('版本号：V0.9.3', u.fonts['deyi'], about_middle_text_style, midleft=(0, 152)).join(subpallets[-1])
+fantas.Text('版本号：V0.9.5', u.fonts['deyi'], about_middle_text_style, midleft=(0, 152)).join(subpallets[-1])
 fantas.Text('适用下位机固件版本：V0.5 及以上', u.fonts['deyi'], about_middle_text_style, midleft=(0, 180)).join(subpallets[-1])
 
 fantas.Text('程序语言：python 3.12.7', u.fonts['deyi'], about_middle_text_style, midleft=(0, 216)).join(subpallets[-1])
