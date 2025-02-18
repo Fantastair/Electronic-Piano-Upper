@@ -174,58 +174,58 @@ class Text(fantas.Ui):
         return img
 
 
-# class TimeText(Text):
-#     # 显示时间的文本类
-#     __slots__ = ['structure', 'time']
+class TimeText(Text):
+    # 显示时间的文本类
+    __slots__ = ['structure', 'time']
 
-#     def __init__(self, structure: str, *args, **kwargs):
-#         # structure 定义显示时间的结构
-#         # '::'表示显示时间为00:00;
-#         # '::.'表示时间显示为00:00.0 (小数部分取决于小数位数)
-#         self.structure = structure
-#         super().__init__('', *args, **kwargs)
+    def __init__(self, structure: str, *args, **kwargs):
+        # structure 定义显示时间的结构
+        # '::'表示显示时间为00:00;
+        # '::.'表示时间显示为00:00.0 (小数部分取决于小数位数)
+        self.structure = structure
+        super().__init__('', *args, **kwargs)
 
-#     def set_time(self, time):
-#         self.time = time
-#         self.text = ''
-#         point = self.structure[-1] == '.'
-#         if point:
-#             self.text = f'.{time-int(time)}'
-#         time = int(time)
-#         for i in self.structure[:-1] if point else self.structure:
-#             self.text = ':' + str(time%60).rjust(2, '0') + self.text
-#             time //= 60
-#         self.text = self.text[1:]
-#         self.update_img()
+    def set_time(self, time):
+        self.time = time
+        self.text = ''
+        point = self.structure[-1] == '.'
+        if point:
+            self.text = f'.{time-int(time)}'
+        time = int(time)
+        for i in self.structure[:-1] if point else self.structure:
+            self.text = ':' + str(time%60).rjust(2, '0') + self.text
+            time //= 60
+        self.text = self.text[1:]
+        self.update_img()
 
-#     def set_part_time(self, *args, float_part=0.0):
-#         # 显式地设置时间，而不用计算总和，小数部分单独指定
-#         # 示例的两条语句等价：
-#         # set_part_time(2, 30)
-#         # set_time(150)
-#         time = 0
-#         weight = 1
-#         for i in args[::-1]:
-#             time += i * weight
-#             weight *= 60
-#         self.set_time(time)
+    def set_part_time(self, *args, float_part=0.0):
+        # 显式地设置时间，而不用计算总和，小数部分单独指定
+        # 示例的两条语句等价：
+        # set_part_time(2, 30)
+        # set_time(150)
+        time = 0
+        weight = 1
+        for i in args[::-1]:
+            time += i * weight
+            weight *= 60
+        self.set_time(time)
 
-#     def get_time(self):
-#         # 返回当前的设定时间
-#         return self.time
+    def get_time(self):
+        # 返回当前的设定时间
+        return self.time
 
-#     def get_actrul_time(self):
-#         # 返回当前显示的实际时间，取决于结构
-#         if '.' in self.text:
-#             self.text, time = self.text.split('.')
-#             time = float(time)
-#         else:
-#             time = 0
-#         weight = 1
-#         for i in self.text.split(':')[::-1]:
-#             time += int(i) * weight
-#             weight *= 60
-#         return time
+    def get_actrul_time(self):
+        # 返回当前显示的实际时间，取决于结构
+        if '.' in self.text:
+            self.text, time = self.text.split('.')
+            time = float(time)
+        else:
+            time = 0
+        weight = 1
+        for i in self.text.split(':')[::-1]:
+            time += int(i) * weight
+            weight *= 60
+        return time
 
 class IconText(Text):
     # 图标文字

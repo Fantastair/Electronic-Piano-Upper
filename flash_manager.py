@@ -72,26 +72,26 @@ data_length = 0
 ex_filename = None
 export_table_button = MemoryButton(120, '导出表头', '将表头数据导出为文件', center=(80, 120))
 export_table_button.join(board)
+end_func = None
 def record_table(data):
     global flash_table, flash_table_data, data_length
     flash_table_data += data
     if data[0] == 2:
         s = ''
-        for i in range(2, 15):
+        for i in range(1, 15):
             if data[i] != 0:
                 s += chr(data[i])
             else:
                 break
-        flash_table.append(s)
-    else:
-        flash_table.append(None)
+        flash_table.append((s, data_length))
     data_length += 1
     if data_length == 64:
-        process_bar.set_process(10 + round(data_length / 64 * 80, 2), save_table)
+        process_bar.set_process(10 + round(data_length / 64 * 80, 2), end_func)
     else:
         process_bar.set_process(10 + round(data_length / 64 * 80, 2))
 
 def save_table():
+    global ex_filename, end_func
     if ex_filename:
         with Path(ex_filename).open('wb') as f:
             f.write(bytes(flash_table_data))
@@ -99,20 +99,27 @@ def save_table():
         process_bar.set_process(100)
     else:
         process_bar.set_process(0)
+    end_func = None
+
+def update_table():
+    global flash_table, flash_table_data, data_length
+    flash_table = []
+    flash_table_data = []
+    data_length = 0
+    for i in range(64):
+        my_serial.send_read_order([0x03, i], record_table)
+
 
 def export_table():
-    global flash_table, flash_table_data, data_length, ex_filename
+    global ex_filename, end_func
     ex_filename = asksaveasfilename(defaultextension='.ftd', filetypes=[('Flash Table Data', '*.ftd')], initialfile='flash_table_data.ftd', title='导出表头数据', initialdir='./')
     pygame.event.clear()
     pygame.event.post(pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'button': 1, 'pos': (720, 110)}))
     pygame.event.post(pygame.event.Event(pygame.MOUSEBUTTONUP, {'button': 1, 'pos': (720, 110)}))
     if ex_filename:
         process_bar.set_process(10)
-        flash_table = []
-        flash_table_data = []
-        data_length = 0
-        for i in range(64):
-            my_serial.send_read_order([0x03, i], record_table)
+        end_func = save_table
+        update_table()
 
 import_table_button = MemoryButton(120, '导入表头', '从文件将表头数据写入到下位机', center=(240, 120))
 import_table_button.join(board)
@@ -138,8 +145,30 @@ def import_table():
 clear_memory_button = MemoryButton(220, '清除用户存储数据', '清除存储的音频', center=(450, 120))
 clear_memory_button.join(board)
 def clear_memory():
-    pass
+    global end_func
+    end_func = clear_memory_
+    update_table()
 clear_memory_button.bind(clear_memory)
+
+def clear_memory_():
+    global end_func
+    process_bar.set_process(0)
+    for i in flash_table:
+        process_bar.set_process(10)
+        if i[0] != '_Open_' and i[0] != '_Connect_':
+            process_bar.set_process(20)
+            my_serial.send_write_order([0x03, i[1]])
+            process_bar.set_process(50)
+            my_serial.send_write_order([0x0f, i[1]])
+            my_serial.send_write_order([0x02, i[1], 0] + [0xff] * 15)
+            process_bar.set_process(80)
+            print(f'清除音频 {i[0]} 成功')
+    my_serial.send_write_order([0x02, 63] + [0xff] * 16)
+    pygame.event.clear()
+    pygame.event.post(pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'button': 1, 'pos': (720, 110)}))
+    pygame.event.post(pygame.event.Event(pygame.MOUSEBUTTONUP, {'button': 1, 'pos': (720, 110)}))
+    process_bar.set_process(100)
+    end_func = None
 
 ba_filename = None
 ba_data = {}
@@ -185,6 +214,7 @@ def recv_backup_data(data):
             ba_state = 0
             process_bar.set_process(100)
             with Path(ba_filename).open('wb') as f:
+                print(ba_data)
                 pickle.dump(ba_data, f)
             ba_filename = None
         else:
@@ -215,11 +245,53 @@ def backup_memory():
         process_bar.set_process(0)
         ba_state = 0
 
+im_filename = None
 import_music_button = MemoryButton(120, '导入音频', '从文件导入音频', center=(240, 200))
 import_music_button.join(board)
 def import_music():
-    pass
+    global end_func
+    end_func = import_music_
+    process_bar.set_process(0)
+    update_table()
 import_music_button.bind(import_music)
+
+def import_music_():
+    global end_func, im_filename
+
+    im_filename = askopenfilename(filetypes=[('Music Backup', '*.mb')], title='导入音频', initialdir='./')
+    pygame.event.clear()
+    pygame.event.post(pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'button': 1, 'pos': (720, 110)}))
+    pygame.event.post(pygame.event.Event(pygame.MOUSEBUTTONUP, {'button': 1, 'pos': (720, 110)}))
+    if im_filename:
+        with Path(im_filename).open('rb') as f:
+            data = pickle.load(f)
+        process_bar.set_process(10)
+        for i in data:
+            if i != '_Open_' and i != '_Connect_':
+                process_bar.set_process(10)
+                for page_num in range(60, 0, -1):
+                    if flash_table_data[page_num * 16] == 0:
+                        break
+                else:
+                    process_bar.set_process(10)
+                    continue
+                process_bar.set_process(20)
+                my_serial.send_write_order([0x03, page_num])
+                process_bar.set_process(30)
+                for j in range(0, len(data[i][0]), 16):
+                    my_serial.send_write_order([0x05, page_num, 32, j // 16, min(16, len(data[i][0]) - j)] + data[i][0][j: j + 16])
+                    my_serial.send_write_order([0x05, page_num, 32, j // 16 + 16, min(16, len(data[i][0]) - j)] + data[i][1][j: j + 16])
+                    process_bar.set_process(30 + 70 * j / len(data[i][0]))
+                table_temp = [2] + [ord(j) for j in i] + [0] + [0xff] * (14 - len(i))
+                my_serial.send_write_order([0x02, page_num] + table_temp)
+                my_serial.send_write_order([0x02, 63] + [0xff] * 16)
+                my_serial.send_write_order([0x10, page_num])
+                flash_table_data[page_num * 16] = 2
+                process_bar.set_process(100)
+                print(f'导入音频 {i} 成功')
+        process_bar.set_process(100)
+
+    end_func = None
 
 
 class DangerMemoryButton(MemoryButton):
@@ -249,6 +321,7 @@ def erase_flash():
     elif ensure_flag == 1:
         cancel_trigger.stop()
         cancel_erase()
+        my_serial.send_write_order([0x04])
         process_bar.set_process(100)
 def cancel_erase():
     global ensure_flag

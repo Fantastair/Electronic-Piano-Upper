@@ -109,17 +109,6 @@ class VolumeBarBoxMouseWidget(fantas.MouseBase):
 
 VolumeBarBoxMouseWidget(volume_bar_box).apply_event()
 
-note_color_family = (
-    pygame.Color('#ddffe9'),
-    pygame.Color('#c1eade'),
-    pygame.Color('#a4c6b7'),
-    pygame.Color('#88b3b1'),
-    pygame.Color('#769fa5'),
-    pygame.Color('#577c86'),
-    pygame.Color('#486a77'),
-    pygame.Color('#2f4858'),
-)
-
 class RandomNote(fantas.IconText):
     def __init__(self):
         random_style = {

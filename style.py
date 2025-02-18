@@ -18,6 +18,17 @@ u.random_color_family = (
     pygame.Color('#4ffbdf'),
 )
 
+note_color_family = (
+    pygame.Color('#ddffe9'),
+    pygame.Color('#c1eade'),
+    pygame.Color('#a4c6b7'),
+    pygame.Color('#88b3b1'),
+    pygame.Color('#769fa5'),
+    pygame.Color('#577c86'),
+    pygame.Color('#486a77'),
+    pygame.Color('#2f4858'),
+)
+
 def get_color(value):
     return pygame.Color('#' + value)
 
@@ -58,7 +69,33 @@ note_text_style = get_text(24, DEEPBLUE)
 record_note_text_style = get_text(144, FAKEWHITE - color_offset)
 music_name_style = get_text(36, DEEPBLUE)
 memory_text_style = get_text(42, DEEPBLUE)
+ml_button_text_style = get_text(48, FAKEWHITE)
+mlub_button_text_style = get_text(24, DEEPBLUE)
+mlub_tip_text_style = get_text(36, DEEPBLUE)
+
 memory_button_color = {
+    'origin_bg': FAKEWHITE,
+    'hover_bg': FAKEWHITE + color_offset,
+    'press_bg': FAKEWHITE - color_offset,
+    'origin_bd': 2,
+    'hover_bd': 4,
+    'press_bd': 4,
+    'origin_sc': DEEPBLUE,
+    'hover_sc': DEEPBLUE,
+    'press_sc': DEEPBLUE,
+}
+ml_button_color = {
+    'origin_bg': DEEPBLUE,
+    'hover_bg': DEEPBLUE,
+    'press_bg': DEEPBLUE,
+    'origin_bd': 0,
+    'hover_bd': 0,
+    'press_bd': 0,
+    'origin_sc': None,
+    'hover_sc': None,
+    'press_sc': None,
+}
+mlub_button_color = {
     'origin_bg': FAKEWHITE,
     'hover_bg': FAKEWHITE + color_offset,
     'press_bg': FAKEWHITE - color_offset,

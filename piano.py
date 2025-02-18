@@ -44,7 +44,7 @@ class PianoKeyKeyBoardWidget(fantas.KeyboardBase):
             self.ui.unplay()
     
 class PianoKey(fantas.Label):
-    freq_map = (523, 587, 659, 698, 784, 880, 988, 1046)
+    freq_map = (261 + 30, 294 + 30, 330 + 30, 349 + 30, 392 + 30, 440 + 30, 494 + 30, 523 + 30)
     key_map = ('1', '2', '3', '4', '5', '6', '7', '8')
 
     def __init__(self, num, **anchor):

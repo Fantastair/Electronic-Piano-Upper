@@ -67,6 +67,7 @@ def recv_data_package():
 
 
 def send_write_order(data):
+    # print(data)
     if my_serial is not None and my_serial.isOpen():
         with lock:
             send_data_queue.append(('w', data))

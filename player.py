@@ -1,6 +1,7 @@
 import pygame.freetype
 import fantas
 from fantas import uimanager as u
+import sync
 import my_serial
 from style import *
 
@@ -87,8 +88,12 @@ class PlayButtonMouseWidget(fantas.MouseBase):
     def mouseclick(self):
         if self.ui.played:
             self.ui.pause()
+            my_serial.send_write_order([0x07])
         else:
             self.ui.play()
+            my_serial.send_write_order([0x06])
+            my_serial.send_read_order([0x07], update_music_info)
+        u.sounds['play'].play()
 
 class PlayButton(fantas.IconText):
     play_text = chr(0xe60c)
@@ -145,7 +150,10 @@ class StopButtonMouseWidget(fantas.MouseBase):
 
     def mousepress(self, pos, button):
         if button == self.mousedown == 1 and self.ui.played:
-            self.ui.unplay()
+            my_serial.send_write_order([0x08])
+            my_serial.send_read_order([0x07], update_music_info)
+            # self.ui.unplay()
+            u.sounds['stop'].play()
 
 class StopButton(fantas.Label):
     osize = (40, 40)
@@ -223,7 +231,12 @@ class NextButtonMouseWidget(fantas.MouseBase):
             self.ui.larger()
 
     def mouseclick(self):
-        self.ui.next_ani()
+        if music_total_index != 0:
+            self.ui.next_ani()
+            my_serial.send_write_order([0x0b, music_total_index - 1])
+            my_serial.send_read_order([0x07], update_music_info)
+            my_serial.send_write_order([0x0e])
+            u.sounds['next'].play()
 
 class NextButton(fantas.IconText):
     itext = chr(0xe815)
@@ -279,6 +292,8 @@ class NextButton(fantas.IconText):
         self.pos_kf.launch('continue')
 
     def next(self):
+        if music_total_index == 0:
+            return
         play_button.play()
 
 
@@ -307,6 +322,7 @@ class SpeedButtonMouseWidget(fantas.MouseBase):
 
     def mouseclick(self):
         self.ui.change_speed()
+        u.sounds['speed'].play()
 
 class SpeedButton(fantas.IconText):
     itext = chr(0xe61a)
@@ -355,9 +371,10 @@ class SpeedButton(fantas.IconText):
         self.st_pos_kf.value = self.stopos
         self.st_pos_kf.totalframe = 6
         self.st_pos_kf.launch('continue')
-
-    def change_speed(self):
-        self.speed = (self.speed + 1) % 3
+    
+    def set_speed(self, speed):
+        self.speed = speed
+        my_serial.send_write_order([0x09, self.speed])
         self.speed_text.text = self.speed_texts[self.speed]
         self.speed_text.update_img()
         if self.speed == 2:
@@ -369,6 +386,9 @@ class SpeedButton(fantas.IconText):
         else:
             record_angle_kf.currentframe = round(720 * (record_angle_kf.currentframe / record_angle_kf.totalframe))
             record_angle_kf.totalframe = 720
+
+    def change_speed(self):
+        self.set_speed((self.speed + 1) % 3)
 
 
 class ModeButtonMouseWidget(fantas.MouseBase):
@@ -396,6 +416,7 @@ class ModeButtonMouseWidget(fantas.MouseBase):
 
     def mouseclick(self):
         self.ui.change_mode()
+        u.sounds['mode'].play()
 
 class ModeButton(fantas.IconText):
     itexts = (chr(0xe6a6), chr(0xe60d), chr(0xe60b), chr(0xe6db), chr(0xe622))
@@ -420,11 +441,15 @@ class ModeButton(fantas.IconText):
         self.size_kf.value = self.osize
         self.size_kf.totalframe = 6
         self.size_kf.launch('continue')
-
-    def change_mode(self):
-        self.mode = (self.mode + 1) % 5
+    
+    def set_mode(self, mode):
+        self.mode = mode
+        my_serial.send_write_order([0x0a, self.mode])
         self.text = self.itexts[self.mode]
         self.update_img()
+
+    def change_mode(self):
+        self.set_mode((self.mode + 1) % 5)
 
 
 class ProcessBarMouseWidget(fantas.MouseBase):
@@ -434,10 +459,12 @@ class ProcessBarMouseWidget(fantas.MouseBase):
         self.pos = None
 
     def mousepress(self, pos, button):
-        if button == self.mousedown == 1:
+        if button == self.mousedown == 1 and play_button.played:
             self.ui.larger()
             self.start = self.ui.bar.size[0]
             self.pos = pos[0]
+            play_button.pause()
+            my_serial.send_write_order([0x07])
 
     def mouserelease(self, pos, button):
         self.ui.smaller()
@@ -464,7 +491,7 @@ class ProcessBar(fantas.Label):
         self.bar_size_kf = fantas.LabelKeyFrame(self.bar, 'size', (self.oheight, self.oheight), 10, u.slower_curve)
 
         self.mousewidget = ProcessBarMouseWidget(self)
-        self.mousewidget.apply_event()
+        # self.mousewidget.apply_event()
 
     def larger(self):
         self.bar_size_kf.value = (self.bar_size_kf.value[0], self.oheight)
@@ -487,6 +514,9 @@ class ProcessBar(fantas.Label):
         self.bar_size_kf.value = (size, self.oheight)
         self.bar_size_kf.totalframe = 6
         self.bar_size_kf.launch('continue')
+    
+    def set_process(self, r):
+        self.set_bar_size(round(r * self.osize[0]))
 
 speed_button = SpeedButton(center=(300, 240))
 speed_button.join(board)
@@ -502,5 +532,45 @@ mode_button.join(board)
 process_bar = ProcessBar(center=(420, 288))
 process_bar.join(board)
 
-music_name = fantas.Text('Music', u.fonts['deyi'], music_name_style, center=(446, 120))
+music_name = fantas.Text('* ---- *', u.fonts['deyi'], music_name_style, center=(420, 120))
 music_name.join(board)
+music_total_index = 0
+music_total_tick = 0
+
+def update_music_info(data):
+    global music_total_index, music_total_tick
+    if data[0] == 0:
+        music_total_index = 0
+        music_total_tick = 0
+        music_name.text = '* ---- *'
+        music_name.update_img()
+        if stop_button.played:
+            stop_button.unplay()
+        return
+    s = ''
+    for i in range(len(data)):
+        if data[i] == 0:
+            break
+        s += chr(data[i])
+    music_name.text = s
+    music_name.update_img()
+    music_total_tick = data[i + 1] << 24 | data[i + 2] << 16 | data[i + 3] << 8 | data[i + 4]
+    music_total_index = data[i + 5]
+
+def sync_play_info(data):
+    if data[0] == 0 and stop_button.played:
+        stop_button.unplay()
+    elif data[0] == 1 and not play_button.played:
+        play_button.play()
+    elif data[0] == 2 and play_button.played:
+        play_button.pause()
+    if data[1] != speed_button.speed:
+        speed_button.set_speed(data[1])
+    if data[2] != mode_button.mode:
+        mode_button.set_mode(data[2])
+    if music_total_index == 0:
+        return
+    process_bar.set_process(data[3] / music_total_index)
+    if music_total_index - data[3] < 3 or data[3] < 3:
+        my_serial.send_read_order([0x07], update_music_info)
+info_syncer = sync.SyncTrigger('play_info', sync_play_info)
